@@ -1,0 +1,62 @@
+@import url(http://fonts.googleapis.com/css?family=Berkshire+Swash);
+
+body {
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	font-family: 'Berkshire Swash';
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 48px;
+}
+
+#toolbar {
+	user-select: none;
+	position: absolute;
+	height: 48px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 0;
+	
+	background: -webkit-linear-gradient(bottom, #765 0%, #cba 90%, #fff 95%, #cba 100%);
+	box-shadow: 0 0 16px black;
+}
+
+div.tool,
+div.menu {
+	margin: 8px;
+	width: 32px;
+	height: 32px;
+	display: inline-block;
+	background-size: 100% 100%;
+}
+
+.tool {
+	cursor: move;
+}
+
+.menu {
+	float: right;
+	cursor: pointer;
+}
+
+/* Boxes */
+
+#boxmenu {
+	position: absolute;
+	width: 200px;
+	bottom: 48px;
+	right: 6px;
+	
+	background: #eee;
+	padding: 8px;
+	
+	border-radius: 12px 12px 0 0;
+	box-shadow: 0 0 12px black;
+}
