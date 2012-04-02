@@ -25,5 +25,3 @@ An Event is a specific activity.  It has a title and different time scheme than 
 Camps are persistent places with a simple interface.  They require a passphrase to move around or edit.  Clicking on a camp brings up it's categories and items.  The default categories would be "Items" and "Skills", but categories are up the neighborhood, as are the items placed in each category.  Items are abstract; they can have any meaning.
 
 That's all there is to it.
-
-See it in development here: https://Queatz.github.com/Earthlings

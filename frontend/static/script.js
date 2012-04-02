@@ -44,7 +44,7 @@ markerdefdef = {
 
 // Individual map marker options
 markerdef = {
-	'play': {image: 'play'},
+	'play': {image: 'play', functional: true},
 	'event': {tooltip: true, image: 'event', edit: true, functional: true},
 //	'treasure': {tooltip: true, image: 'treasure', edit: true, functional: true},
 	'camp': {tooltip: true, title: 'Camp ', image: 'camp', edit: true, functional: true},
