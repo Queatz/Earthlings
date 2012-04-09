@@ -11,6 +11,7 @@ tooltipOverlay.prototype.onAdd = function() {
 }
 
 tooltipOverlay.prototype.updateTip = function(latLon, div) {
+	if(!div) return;
 	for(d in this.waiting) {
 		if(this.waiting[d][0][0] == div[0]) {
 			this.waiting[d][1] = latLon;
