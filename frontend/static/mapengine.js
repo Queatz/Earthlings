@@ -133,7 +133,7 @@ function MapEngine(obj) {
 	// Do this so markers zoom with the map.
 	this.updateMarkerZoom = function(m) {
 		var icon = m.getIcon();
-		z = Math.pow(m.getMap().zoom / 20, 1.7) * 64;
+		z = m.getMap().zoom > 13 ? Math.pow(2, m.getMap().zoom) / 4096 : 16;
 		icon.size.height = z;
 		icon.size.width = z;
 		icon.scaledSize = icon.size;
