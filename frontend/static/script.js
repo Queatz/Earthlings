@@ -21,8 +21,8 @@ $(document).ready(function() {
 	addMenuItem('handbook');
 	
 	// Toolbar
-	addTool('play');
 	addTool('event');
+	addTool('play');
 //	addTool('treasure');
 	addTool('camp');
 //	addTool('sparkle');
@@ -39,7 +39,12 @@ markerdefdef = {
 	title: '',
 	edit: false,
 	functional: false,
-	tooltip: false
+	tooltip: false,
+	click: null
+}
+
+function campClick(m) {
+	
 }
 
 // Individual map marker options
@@ -47,7 +52,7 @@ markerdef = {
 	'play': {image: 'play', functional: true},
 	'event': {tooltip: true, image: 'event', edit: true, functional: true},
 //	'treasure': {tooltip: true, image: 'treasure', edit: true, functional: true},
-	'camp': {tooltip: true, title: 'Camp ', image: 'camp', edit: true, functional: true},
+	'camp': {tooltip: true, title: 'Camp ', image: 'camp', edit: true, functional: true, click: campClick},
 //	'sparkle': {image: 'sparkle'}
 }
 

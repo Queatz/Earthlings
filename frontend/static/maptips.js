@@ -18,7 +18,7 @@ tooltipOverlay.prototype.updateTip = function(latLon, div) {
 			
 			px = this.getProjection().fromLatLngToDivPixel(this.waiting[d][1]);
 			this.waiting[d][0].css({
-				top: px.y - 16,
+				top: px.y - 8,
 				left: px.x - 100,
 			});
 		}

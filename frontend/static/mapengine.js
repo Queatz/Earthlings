@@ -86,7 +86,7 @@ function MapEngine(obj) {
 							if(options.edit) {
 								m.tip = $('<span><input type="text" /><input type="submit" value="Discard" /> <input type="submit" /></span>');
 								$(m.tip[0].children[0]).val(options.title);
-								m.tip[0].children[1].onclick = (function(e){_this.mtips.hideTip(m.mtip); _this.markers.splice(_this.markers.indexOf(m), 1); m.setMap(); m.tip[0].children[2].disabled = true});
+								m.tip[0].children[1].onclick = (function(e){_this.mtips.hideTip(m.mtip); _this.markers.splice(_this.markers.indexOf(m), 1); m.setMap(); m.tip[0].children[2].disabled = true;});
 								m.tip[0].children[2].onclick = (function(e){m.save($(m.tip[0].children[0]).val())});
 								m.tipLocked = true;
 								setTimeout(function() {m.mtip = _this.mtips.showTip(m.getPosition(), m.tip); m.tip[0].children[0].focus();}, 600);
@@ -100,7 +100,7 @@ function MapEngine(obj) {
 							m.tipLocked = true;
 					},
 					events:{
-						click: function(e){},
+						click: options.click,
 						position_changed: function(m){
 							_this.mtips.updateTip(m.getPosition(), m.mtip);
 						},
@@ -133,7 +133,7 @@ function MapEngine(obj) {
 	// Do this so markers zoom with the map.
 	this.updateMarkerZoom = function(m) {
 		var icon = m.getIcon();
-		z = m.getMap().zoom > 13 ? Math.pow(2, m.getMap().zoom) / 4096 : 16;
+		z = m.getMap().zoom > 17 ? Math.pow(2, m.getMap().zoom) / 8192 : 16;
 		icon.size.height = z;
 		icon.size.width = z;
 		icon.scaledSize = icon.size;
