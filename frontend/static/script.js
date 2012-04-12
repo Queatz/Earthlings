@@ -1,37 +1,31 @@
 var map;
 
 $(document).ready(function() {
-	// Map
+	// Create the map div
 	e = document.createElement('div');
 	e.id = 'map';
 	$('body').append(e);
 	
-	// Toolbar
+	// Create the toolbar div
 	e = document.createElement('div');
 	e.id = 'toolbar';
 	$('body').append(e);
 	
-	//Mechanics
+	// Mechanics
 	map = new MapEngine($('#map'));
 	
-	//Menu
+	// Populate the menu
 	addMenuItem('navigate');
-//	addMenuItem('language');
-//	addMenuItem('grateful');
 	addMenuItem('handbook');
 	
-	// Toolbar
+	// Populate the toolbar
 	addTool('event');
 	addTool('play');
-//	addTool('treasure');
 	addTool('camp');
-//	addTool('sparkle');
+	
+	// Add tipsy tooltips
 	$('[title]').tipsy({fade: true, gravity: 's', delayIn: 1400, offset: 3});
 });
-
-String.prototype.capitalize = function() {
-	return this.charAt(0).toUpperCase() + this.slice(1);
-}
 
 // Default map marker options
 markerdefdef = {
@@ -43,16 +37,12 @@ markerdefdef = {
 	click: null
 }
 
-function campClick(m) {
-	
-}
-
 // Individual map marker options
 markerdef = {
 	'play': {image: 'play', functional: true},
 	'event': {tooltip: true, image: 'event', edit: true, functional: true},
 //	'treasure': {tooltip: true, image: 'treasure', edit: true, functional: true},
-	'camp': {tooltip: true, title: 'Camp ', image: 'camp', edit: true, functional: true, click: campClick},
+	'camp': {tooltip: true, title: 'Camp ', image: 'camp', edit: true, functional: true, click: null	},
 //	'sparkle': {image: 'sparkle'}
 }
 

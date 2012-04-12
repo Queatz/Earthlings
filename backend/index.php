@@ -1,5 +1,8 @@
 <?php
 
+if(!isset($_POST['a']))
+	die();
+
 /*
  * 
  * Markers: lat, lng
@@ -30,11 +33,23 @@ if($create) {
 		`time` FLOAT
 	)");
 	
-	$result = $db->exec("CREATE TABLE `play` (
-		`where` INTEGER,
-		`time` INTEGER
+	$result = $db->exec("CREATE TABLE `data` (
+		`marker` INTEGER,
+		`attribute` VARCHAR(32),
+		`value`
 	)");
 	
 	if($result === false)
 		die('Error creating database structure.');
+}
+
+$p = $_POST;
+
+/* Begins Here */
+
+switch($a) {
+	case '':
+		break;
+	default:
+		die();
 }

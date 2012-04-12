@@ -35,15 +35,6 @@ function MapEngine(obj) {
 				disableDefaultUI: true,
 				mapTypeId: this.getMapTypeFromZoom(zoom),
 				backgroundColor: '#222',
-				/*styles: [
-					{
-						elementType: 'all',
-						featureType: 'all',
-						stylers: [
-							{gamma: 3.0},
-						]
-					}
-				]*/
 			},
 			events: {
 				zoom_changed: _this._zoomChanged,
@@ -133,7 +124,7 @@ function MapEngine(obj) {
 	// Do this so markers zoom with the map.
 	this.updateMarkerZoom = function(m) {
 		var icon = m.getIcon();
-		z = m.getMap().zoom > 17 ? Math.pow(2, m.getMap().zoom) / 8192 : 16;
+		z = m.getMap().zoom > 16 ? Math.pow(2, m.getMap().zoom) / 4096 : 16;
 		icon.size.height = z;
 		icon.size.width = z;
 		icon.scaledSize = icon.size;
