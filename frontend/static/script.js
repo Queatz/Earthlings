@@ -20,7 +20,6 @@ $(document).ready(function() {
 	
 	// Populate the toolbar
 	addTool('event');
-	addTool('play');
 	addTool('camp');
 	
 	// Add tipsy tooltips
@@ -39,11 +38,8 @@ markerdefdef = {
 
 // Individual map marker options
 markerdef = {
-	'play': {image: 'play', functional: true},
 	'event': {tooltip: true, image: 'event', edit: true, functional: true},
-//	'treasure': {tooltip: true, image: 'treasure', edit: true, functional: true},
 	'camp': {tooltip: true, title: 'Camp ', image: 'camp', edit: true, functional: true, click: null	},
-//	'sparkle': {image: 'sparkle'}
 }
 
 // Function to add a tool
