@@ -1,6 +1,6 @@
 import cherrypy
 import stash
-import types
+import markers
 
 class Earthlings:
 	exposed = True
@@ -11,11 +11,15 @@ class Earthlings:
 	}
 	
 	def __init__(self):
-		self.data = stash.Stash(types.Default())
-		self.data((,), {'_setup': None})
+		self.data = stash.Stash(markers.Default())
+		self.data[()].setup(self)
 	
 	def __call__(self, *args, **kwargs):
-		return self.data(args, kwargs)
+		try:
+			return self.data(args, kwargs)
+		except:
+			import traceback
+			return '<pre>' + traceback.format_exc() + '</pre>'
 
 if __name__ == '__main__':
 	cherrypy.quickstart(Earthlings())

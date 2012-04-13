@@ -10,8 +10,10 @@ class Stash(dict):
 		if not default:
 			default = Item()
 		
+		default.setup(self)
+		
 		# Set the default action
-		self[(,)] = default
+		self[()] = default
 	
 	def __call__(self, path, action):
 		if action:
