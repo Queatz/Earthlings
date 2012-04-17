@@ -20,16 +20,18 @@ function MapEngine(obj) {
 	this._init = function() {
 		center = google.maps.LatLng(0, 0);
 		zoom = 0;
+		
+		// Center map where it last was
 		ll = $.cookie('earthlings_latlng');
 		if(ll) {
 			ll = ll.split('_');
 			center = new google.maps.LatLng(parseFloat(ll[0]), parseFloat(ll[1]));
 			zoom = parseInt(ll[2]);
 		}
-	
+		
+		// Create the Google Map
 		this.obj.gmap3({
 			options: {
-				noClear: true,
 				center: center,
 				zoom: zoom,
 				disableDefaultUI: true,
@@ -136,6 +138,7 @@ function MapEngine(obj) {
 	// Event Handlers //
 	////////////////////
 	
+	// Labels are shown in the middle zoom levels
 	this.getMapTypeFromZoom = function(z) {
 		if(z < 17 && z > 5)
 			return google.maps.MapTypeId.HYBRID;
@@ -143,6 +146,7 @@ function MapEngine(obj) {
 			return google.maps.MapTypeId.SATELLITE;
 	}
 	
+	// Update marker sizes on zoom change and set the map type
 	this._zoomChanged = function(m) {
 		m.setMapTypeId(_this.getMapTypeFromZoom(m.zoom));
 		
@@ -153,13 +157,16 @@ function MapEngine(obj) {
 		_this._centerChanged(m);
 	}
 	
+	// So the map stays where you last had it
 	this._centerChanged = function(m) {
 		$.cookie('earthlings_latlng', m.center.lat() + '_' + m.center.lng() + '_' + m.zoom, {expires: 365});
 	}
 	
+	// Load markers
 	this._boundsChanged = function(m) {
 		//console.log(m.getBounds().toUrlValue());
 	}
 	
+	// Run initialization
 	this._init();
 }

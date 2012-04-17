@@ -39,7 +39,7 @@ markerdefdef = {
 // Individual map marker options
 markerdef = {
 	'event': {tooltip: true, image: 'event', edit: true, functional: true},
-	'camp': {tooltip: true, title: 'Camp ', image: 'camp', edit: true, functional: true, click: null	},
+	'camp': {tooltip: true, title: 'Camp ', image: 'camp', edit: true, functional: true, click: null},
 }
 
 // Function to add a tool

@@ -1,15 +1,19 @@
 // Tooltips for Google Maps v3
 
+// Tooltips are done in an overlay
 tooltipOverlay.prototype = new google.maps.OverlayView();
 
 function tooltipOverlay(map) {
+	// Set the map of the tooltip overlay
 	this.setMap(map);
 }
 
 tooltipOverlay.prototype.onAdd = function() {
+	// A list of all markers tooltips divs
 	this.waiting = [];
 }
 
+// Update tooltip location
 tooltipOverlay.prototype.updateTip = function(latLon, div) {
 	if(!div) return;
 	for(d in this.waiting) {
@@ -25,6 +29,7 @@ tooltipOverlay.prototype.updateTip = function(latLon, div) {
 	}
 }
 
+// Show a tooltip
 tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 	if(!div) {
 		div = $('<div>');
@@ -73,11 +78,13 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 	return div;
 }
 
+// Hide a tooltip
 tooltipOverlay.prototype.hideTip = function(div, t) {
 	if(typeof t == 'undefined') t = 500;
 	div[0].timeout = setTimeout(function(){div.tipsy('hide'); div[0].timeout = undefined;}, t);
 }
 
+// Draw tooltips
 tooltipOverlay.prototype.draw = function() {
 	for(d in this.waiting)
 		this.updateTip(this.waiting[d][1], this.waiting[d][0]);
