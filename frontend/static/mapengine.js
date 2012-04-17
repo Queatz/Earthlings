@@ -67,30 +67,8 @@ function MapEngine(obj) {
 						_this.updateMarkerZoom(m);
 						_this.markers.push(m);
 						
-						m.save = function(n) {
-							$(m.tip[0]).html(n);
-							_this.mtips.updateTip(m.getPosition(), m.mtip);
-							m.tipLocked = false;
-							m.mtip = _this.mtips.showTip(m.getPosition(), _this.tip, m.mtip);
-							_this.mtips.hideTip(m.mtip);
-						}
-						
-						if(options.tooltip) {
-							if(options.edit) {
-								m.tip = $('<span><input type="text" /><input type="submit" value="Discard" /> <input type="submit" /></span>');
-								$(m.tip[0].children[0]).val(options.title);
-								m.tip[0].children[1].onclick = (function(e){_this.mtips.hideTip(m.mtip); _this.markers.splice(_this.markers.indexOf(m), 1); m.setMap(); m.tip[0].children[2].disabled = true;});
-								m.tip[0].children[2].onclick = (function(e){m.save($(m.tip[0].children[0]).val())});
-								m.tipLocked = true;
-								setTimeout(function() {m.mtip = _this.mtips.showTip(m.getPosition(), m.tip); m.tip[0].children[0].focus();}, 600);
-							}
-							else {
-								m.tipLocked = false;
-								m.tip = options.title;
-							}
-						}
-						else
-							m.tipLocked = true;
+						if(options.init)
+							options.init(m);
 					},
 					events:{
 						click: options.click,

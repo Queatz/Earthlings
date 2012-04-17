@@ -6,6 +6,7 @@ import random
 import time
 
 def newID():
+	"Generate a random hash."
 	return hashlib.sha1(str(random.random() + time.time()).encode()).hexdigest()[:16]
 
 class Default(Item):
@@ -20,20 +21,25 @@ class Default(Item):
 			if t not in ('event',):
 				return
 			
+			# Create a new marker
 			m = Marker()
 			i = newID()
 			
 			# Otherwise the session is lost...
 			cherrypy.session['keep'] = True
 			
+			# Add the creating session to editing 
 			m.addSession(cherrypy.session.id)
 			
+			# Add an Event to the marker
 			if t == 'event':
 				e = Event()
 				m.target = e
 			
+			# Add the new marker's path
 			self.stash[(i,)] = m
 			
+			# Return the marker's ID
 			return i
 
 class Marker(Item):

@@ -48,6 +48,7 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 		this.updateTip(latLon, div);
 		
 		div.tipsy({
+			opacity: 0.95,
 			delayOut: 500,
 			trigger: 'manual',
 			gravity: 's',
