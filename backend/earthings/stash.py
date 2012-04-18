@@ -14,6 +14,16 @@ class Stash(dict):
 		
 		# Set the default action
 		self[()] = default
+		
+		self._map = dict()
+	
+	def map(self, i, p):
+		self._map[p] = i
+	
+	def getMapped(self, r):
+		for i in self._map:
+			if i[0] > r[0] and i[0] < r[2] and i[1] > r[1] and i[1] < r[3]:
+				yield self._map[i]
 	
 	def __call__(self, path, action):
 		if action:

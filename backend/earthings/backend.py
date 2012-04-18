@@ -15,8 +15,11 @@ class Earthlings:
 		self.data[()].setup(self)
 	
 	def __call__(self, *args, **kwargs):
+		print(args, kwargs)
+		cherrypy.response.headers['Access-Control-Allow-Origin'] = 'http://localhost';
 		try:
-			return self.data(args, kwargs)
+			a = self.data(args, kwargs)
+			return a
 		except:
 			import traceback
 			return '<pre>' + traceback.format_exc() + '</pre>'

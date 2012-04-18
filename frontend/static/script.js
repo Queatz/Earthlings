@@ -1,5 +1,16 @@
 var map;
 
+function reloadMarkers(m) {
+	$.ajax(server, {
+		data: {
+			'rect': m.getBounds().toUrlValue()
+		},
+		complete: function(x, data){
+			console.log(data);
+		}
+	});
+}
+
 $(document).ready(function() {
 	// Create the map div
 	e = $('<div>');
@@ -12,7 +23,7 @@ $(document).ready(function() {
 	$('body').append(e);
 	
 	// Mechanics
-	map = new MapEngine($('#map'));
+	map = new MapEngine($('#map'), reloadMarkers);
 	
 	// Populate the menu
 	addMenuItem('navigate');

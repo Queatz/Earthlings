@@ -22,8 +22,8 @@ class Default(Item):
 				return
 			
 			# Create a new marker
-			m = Marker()
 			i = newID()
+			m = Marker(stash, i)
 			
 			# Otherwise the session is lost...
 			cherrypy.session['keep'] = True
@@ -41,13 +41,17 @@ class Default(Item):
 			
 			# Return the marker's ID
 			return i
+		elif 'rect' in a:
+			return json.dumps((self.stash(x) for x in self.stash.getMapped(a['rect'].split(','))))
 
 class Marker(Item):
-	def __init__(self):
+	def __init__(self, stash, i):
+		self.stash = stash
 		self.lat = 0
 		self.lng = 0
 		self.target = None
 		self.sessions = []
+		self.id = i
 	
 	def addSession(self, sid):
 		self.sessions.append(sid)
@@ -55,7 +59,8 @@ class Marker(Item):
 	def action(self, a):
 		# If we are editing the marker's target
 		if 'latlng' in a:
-			self.lat, self.lng = (float(x) for x in a['latlng'].split(' '))
+			self.lat, self.lng = (float(x) for x in a['latlng'].split(','))
+			self.stash.map(self.i, (self.lat, self.lng))
 		if 'edit' in a:
 			# 'edit' is itself a dict
 			a = json.loads(a['edit'])
@@ -70,7 +75,7 @@ class Marker(Item):
 						self.target.ends = time.time() + a['ends']
 	
 	def get(self):
-		return json.dumps([self.target.__class__.__name__, self.lat, self.lng])
+		return json.dumps([self.id, self.target.__class__.__name__.lower(), (self.lat, self.lng, cherrypy.session.id in self.sessions)])
 
 class Event(Item):
 	def __init__(self):

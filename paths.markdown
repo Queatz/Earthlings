@@ -1,5 +1,6 @@
-	add
-		what
+	rect 'r,e,c,t'
+	
+	add 'type'
 
 01
 	delete

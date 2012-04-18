@@ -3,7 +3,7 @@
 	Handles updating data from the server live.
 	Handles marker types.
 */
-function MapEngine(obj) {
+function MapEngine(obj, mkrs) {
 	
 	///////////////
 	// Variables //
@@ -12,6 +12,8 @@ function MapEngine(obj) {
 	_this = this;
 	this.obj = $(obj);
 	this.markers = [];
+	this.loadMarkersTimeout = null;
+	this.reloadMarkers = mkrs;
 	
 	////////////////////
 	// Initialization //
@@ -142,7 +144,10 @@ function MapEngine(obj) {
 	
 	// Load markers
 	this._boundsChanged = function(m) {
-		//console.log(m.getBounds().toUrlValue());
+		if(this.loadMarkersTimeout)
+			clearTimeout(this.loadMarkersTimeout);
+		
+		this.loadMarkersTimeout = setTimeout(function(){_this.reloadMarkers(m);}, 100);
 	}
 	
 	// Run initialization
