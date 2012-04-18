@@ -17,7 +17,17 @@ function Event(options) {
 	
 	this.image = 'event';
 	this.positionTimeout = null;
-	this.id = null;
+	
+	if(options) {
+		this.id = options.id;
+		this.draggable = options.mine;
+		this.title = options.title;
+		this.end = options.end;
+	}
+	else {
+		this.id = null;
+		this.draggable = true;
+	}
 	
 	this.init = function(m){
 		
@@ -37,37 +47,45 @@ function Event(options) {
 			}});
 		}
 		
-		m.tip = $('<span>');
+		if(!options) {
+			m.tip = $('<span>');
 	
-		// Duration chooser
-		var e_time = $('<div>').addClass('time').appendTo(m.tip);
-		e_time.text(1)
-		e_time[0].onclick = function(e) {
-			i = parseInt(e_time.text());
-			e_time.text(isNaN(i) ? 1 : Math.min(12, i + 1));
-		};
+			// Duration chooser
+			var e_time = $('<div>').addClass('time').appendTo(m.tip);
+			e_time.text(1)
+			e_time[0].onclick = function(e) {
+				i = parseInt(e_time.text());
+				e_time.text(isNaN(i) ? 1 : Math.min(12, i + 1));
+			};
 		
-		// Subtract from duration
-		var e_timeDOWN = $('<div>').addClass('timedown').appendTo(m.tip);
-		e_timeDOWN.html('-');
-		e_timeDOWN[0].onclick = function(e) {
-			i = parseInt(e_time.text());
-			e_time.text(isNaN(i) ? 1 : Math.max(1, i - 1));
-		};
+			// Subtract from duration
+			var e_timeDOWN = $('<div>').addClass('timedown').appendTo(m.tip);
+			e_timeDOWN.html('-');
+			e_timeDOWN[0].onclick = function(e) {
+				i = parseInt(e_time.text());
+				e_time.text(isNaN(i) ? 1 : Math.max(1, i - 1));
+			};
 	
-		// Title
-		var e_title = $('<input>').attr('type', 'text').appendTo(m.tip);
+			// Title
+			var e_title = $('<input>').attr('type', 'text').appendTo(m.tip);
 	
-		// Submit
-		var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
-		e_submit[0].onclick = (function(e){m.save(e_title.val());});
+			// Submit
+			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
+			e_submit[0].onclick = (function(e){m.save(e_title.val());});
 	
-		// Discard
-		var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
-		e[0].onclick = (function(e){map.mtips.hideTip(m.mtip, 0); map.markers.splice(map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
+			// Discard
+			var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
+			e[0].onclick = (function(e){map.mtips.hideTip(m.mtip, 0); map.markers.splice(map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
 	
-		m.tipLocked = true;
-		setTimeout(function() {m.mtip = map.mtips.showTip(m.getPosition(), m.tip); e_title.focus();}, 600);
+			m.tipLocked = true;
+			setTimeout(function() {m.mtip = map.mtips.showTip(m.getPosition(), m.tip); e_title.focus();}, 600);
+		}
+		else {
+			m.tip = $('<span>');
+			$(m.tip[0]).html(this.title);
+			m.tipLocked = false;
+			m.mtip = null;
+		}
 	};
 	
 	this.position_changed = function(m){

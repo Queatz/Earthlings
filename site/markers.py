@@ -93,7 +93,7 @@ class Event():
 	
 	def data(self):
 		t = self.ends - time.time()
-		return ['event', self.title, t if t > 0 else 0]
+		return [self.title, t if t > 0 else 0]
 
 class Camp():
 	pass

@@ -26,8 +26,6 @@ class Earthlings:
 		# Otherwise the session is lost...
 		cherrypy.session['keep'] = cherrypy.session.get('keep', 0) + 1
 	
-		cherrypy.response.headers['Access-Control-Allow-Origin'] = 'http://localhost'
-	
 		a = self.stash(args, kwargs)
 		print('\033[1;31m', cherrypy.session.id, '\033[0m')
 		return a

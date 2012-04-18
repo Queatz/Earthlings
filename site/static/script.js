@@ -8,7 +8,19 @@ function reloadMarkers(m) {
 			'rect': m.getBounds().toUrlValue()
 		},
 		success: function(x){
-			console.log(x);
+			map.clear();
+			for(z in x) {
+				y = x[z];
+				map.addMarker(
+					y[1] == 'event' ? new Event({
+						id: y[0],
+						mine: y[2],
+						title: y[4][0],
+						end: y[4][1]
+					}) : null,
+					new google.maps.LatLng(y[3][0], y[3][1])
+				);
+			}
 		}
 	});
 }

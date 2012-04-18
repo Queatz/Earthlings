@@ -60,10 +60,10 @@ function MapEngine(obj, mkrs) {
 	// title: title
 	// image: image name
 	// tooltip: bool
-	this.addMarker = function(options) {
+	this.addMarker = function(options, latlng) {
 		_this.obj.gmap3(
 			{	action: 'addMarker',
-				latLng: _this.obj.gmap3('get').getCenter(),
+				latLng: latlng || _this.obj.gmap3('get').getCenter(),
 				marker: {
 					callback: function(m){
 						_this.updateMarkerZoom(m);
@@ -81,7 +81,7 @@ function MapEngine(obj, mkrs) {
 						},
 						mouseover: function(m){
 							if(!m.tipLocked)
-								m.mtip = _this.mtips.showTip(m.getPosition(), _this.tip, m.mtip);
+								m.mtip = _this.mtips.showTip(m.getPosition(), m.tip, m.mtip);
 						},
 						mouseout: function(m){
 							if(!m.tipLocked)
@@ -98,11 +98,19 @@ function MapEngine(obj, mkrs) {
 						),
 						clickable: true,
 						raiseOnDrag: false,
-						animation: google.maps.Animation.DROP
+						animation: latlng ? null : google.maps.Animation.DROP
 					}
 				}
 			}
 		);
+	}
+	
+	// Clear all markers
+	this.clear = function() {
+		while(_this.markers.length > 0) {
+			m = _this.markers.pop();
+			m.setMap(null);
+		}
 	}
 	
 	// Do this so markers zoom with the map.
