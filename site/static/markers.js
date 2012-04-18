@@ -32,8 +32,8 @@ function Event(options) {
 			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'event'}, success: function(x){
 				_this.id = x;
 				console.log(x);
+				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'title': n})}, success: function(x){console.log('title set', x)}});
 				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'latlng': m.getPosition().toUrlValue()}, success: function(x){console.log('latlng set', x)}});
-				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': n}});
 			}});
 		}
 		
@@ -73,11 +73,11 @@ function Event(options) {
 	this.position_changed = function(m){
 		if(!this.id) return;
 		
-		if(this.positionsTimeout)
-			clearTimeout(this.positionsTimeout);
+		if(this.positionTimeout)
+			clearTimeout(this.positionTimeout);
 		
 		this.positionTimeout = setTimeout(function(){
-			$.ajax(server, {
+			$.ajax(server + '/' + _this.id, {
 				type: 'POST', dataType: 'json',
 				data: {'latlng': m.getPosition().toUrlValue()}, success: function(x){
 					console.log(x);

@@ -6,14 +6,13 @@
 function MapEngine(obj, mkrs) {
 	var _this = this;
 	
-	
 	///////////////
 	// Variables //
 	///////////////
 	
 	this.obj = $(obj);
 	this.markers = [];
-	this.loadMarkersTimeout = null;
+	this.loadMarkersTimeout = new TTimeout(function(){_this.reloadMarkers(_this.obj.gmap3('get'));}, 250);
 	this.reloadMarkers = mkrs;
 	
 	////////////////////
@@ -147,10 +146,7 @@ function MapEngine(obj, mkrs) {
 	
 	// Load markers
 	this._boundsChanged = function(m) {
-		if(this.loadMarkersTimeout)
-			clearTimeout(this.loadMarkersTimeout);
-		
-		this.loadMarkersTimeout = setTimeout(function(){_this.reloadMarkers(m);}, 100);
+		_this.loadMarkersTimeout.trigger();
 	}
 	
 	// Run initialization

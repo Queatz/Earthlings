@@ -26,9 +26,6 @@ class Default(Item):
 			i = newID()
 			m = Marker(self.stash, i)
 			
-			# Otherwise the session is lost...
-			cherrypy.session['keep'] = True
-			
 			# Add the creating session to editing 
 			m.addSession(cherrypy.session.id)
 			
@@ -36,6 +33,8 @@ class Default(Item):
 			if t == 'event':
 				e = Event()
 				m.target = e
+			else:
+				print('\033[1;32mInvalid type created.\033[0m')
 			
 			# Add the new marker's path
 			self.stash[(i,)] = m
@@ -43,7 +42,7 @@ class Default(Item):
 			# Return the marker's ID
 			return json.dumps(i)
 		elif 'rect' in a:
-			return json.dumps([self.stash(x) for x in self.stash.getMapped(a['rect'].split(','))])
+			return json.dumps([self.stash[(x,)].data() for x in self.stash.getMapped(tuple(float(x) for x in a['rect'].split(',')))])
 
 class Marker(Item):
 	def __init__(self, stash, i):
@@ -57,28 +56,34 @@ class Marker(Item):
 	def addSession(self, sid):
 		self.sessions.append(sid)
 	
-	def action(self, a):
+	def data(self):
+		return [self.id, self.target.__class__.__name__.lower(), cherrypy.session.id in self.sessions, [self.lat, self.lng], self.target.data() if self.target else None]
+	
+	def act(self, a):
 		# If we are editing the marker's target
 		if 'latlng' in a:
 			self.lat, self.lng = (float(x) for x in a['latlng'].split(','))
-			self.stash.map(self.i, (self.lat, self.lng))
+			self.stash.map(self.id, (self.lat, self.lng))
 		if 'edit' in a:
 			# 'edit' is itself a dict
 			a = json.loads(a['edit'])
 			# If we are a known session
+			print('editing...')
 			if cherrypy.session.id in self.sessions:
+				print('allowed...')
 				# Then run an edit
 				if type(self.target) == Event:
 					if 'title' in a:
 						self.target.title = a['title']
+						print('', 'set title to', a['title'], '')
 					
 					if 'ends' in a:
-						self.target.ends = time.time() + a['ends']
+						self.target.ends = time.time() + int(a['ends'])
 	
 	def get(self):
-		return json.dumps([self.id, self.target.__class__.__name__.lower(), (self.lat, self.lng, cherrypy.session.id in self.sessions)])
+		return json.dumps(self.data())
 
-class Event(Item):
+class Event():
 	def __init__(self):
 		# The event title
 		self.title = None
@@ -86,15 +91,15 @@ class Event(Item):
 		# Real epoch time the event ends at
 		self.ends = 0
 	
-	def get(self):
+	def data(self):
 		t = self.ends - time.time()
-		return json.dumps(['event', self.title, t if t > 0 else 0])
+		return ['event', self.title, t if t > 0 else 0]
 
-class Camp(Item):
+class Camp():
 	pass
 
-class Category(Item):
+class Category():
 	pass
 
-class Item(Item):
+class Item():
 	pass

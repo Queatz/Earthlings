@@ -18,14 +18,16 @@ class Stash(dict):
 		self._map = dict()
 	
 	def map(self, i, p):
-		self._map[p] = i
+		self._map[i] = p
 	
 	def getMapped(self, r):
 		for i in self._map:
-			if i[0] > r[0] and i[0] < r[2] and i[1] > r[1] and i[1] < r[3]:
-				yield self._map[i]
+			p = self._map[i]
+			if p[0] > r[0] and p[0] < r[2] and p[1] > r[1] and p[1] < r[3]:
+				yield i
 	
-	def __call__(self, path, action):
+	def __call__(self, path, action = None):
+		print('\033[1;36m', path, action, '\033[0m')
 		if action:
 			if path not in self:
 				return
