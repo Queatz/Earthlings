@@ -85,7 +85,7 @@ function MapEngine(obj) {
 						}
 					},
 					options:{
-						draggable: options.functional,
+						draggable: true,
 						icon: new google.maps.MarkerImage(
 							'resources/' + options.image + '.png',
 							new google.maps.Size(),
