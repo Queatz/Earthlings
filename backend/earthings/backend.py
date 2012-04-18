@@ -11,14 +11,14 @@ class Earthlings:
 	}
 	
 	def __init__(self):
-		self.data = stash.Stash(markers.Default())
-		self.data[()].setup(self)
+		self.stash = stash.Stash(markers.Default())
+		self.stash[()].setup(self.stash)
 	
 	def __call__(self, *args, **kwargs):
 		print(args, kwargs)
 		cherrypy.response.headers['Access-Control-Allow-Origin'] = 'http://localhost';
 		try:
-			a = self.data(args, kwargs)
+			a = self.stash(args, kwargs)
 			return a
 		except:
 			import traceback

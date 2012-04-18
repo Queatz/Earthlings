@@ -20,7 +20,7 @@ tooltipOverlay.prototype.updateTip = function(latLon, div) {
 		if(this.waiting[d][0][0] == div[0]) {
 			this.waiting[d][1] = latLon;
 			
-			px = this.getProjection().fromLatLngToDivPixel(this.waiting[d][1]);
+			var px = this.getProjection().fromLatLngToDivPixel(this.waiting[d][1]);
 			this.waiting[d][0].css({
 				top: px.y - 8,
 				left: px.x - 100,
@@ -59,7 +59,7 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 		});
 		
 		// Make tooltips interactable
-		sP = function(e){e.stopPropagation();}
+		var sP = function(e){e.stopPropagation();}
 		div.mousedown(sP);
 		div.click(sP);
 		div.dblclick(sP);
@@ -87,6 +87,6 @@ tooltipOverlay.prototype.hideTip = function(div, t) {
 
 // Draw tooltips
 tooltipOverlay.prototype.draw = function() {
-	for(d in this.waiting)
+	for(var d in this.waiting)
 		this.updateTip(this.waiting[d][1], this.waiting[d][0]);
 }

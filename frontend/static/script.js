@@ -2,16 +2,19 @@ var map;
 
 function reloadMarkers(m) {
 	$.ajax(server, {
+		type: 'POST',
+		dataType: 'json', 
 		data: {
 			'rect': m.getBounds().toUrlValue()
 		},
-		complete: function(x, data){
-			console.log(data);
+		success: function(x){
+			console.log(x);
 		}
 	});
 }
 
 $(document).ready(function() {
+	var e;
 	// Create the map div
 	e = $('<div>');
 	e.attr('id', 'map');
@@ -41,17 +44,17 @@ $(document).ready(function() {
 
 // Function to add a tool
 function addTool(name) {
-	tool = $('<div>');
-	tool.title = name.capitalize();
-	$(tool).addClass('tool');
-	$(tool).css('backgroundImage', "url('resources/" + name + ".png')");
+	var tool = $('<div>');
+	tool.attr('title', name.capitalize());
+	tool.addClass('tool');
+	tool.css('backgroundImage', "url('resources/" + name + ".png')");
 	$('#toolbar').append(tool);
-	$(tool).click(function(){map.addMarker(name == 'event' ? new Event() : null);});
+	tool.click(function(){map.addMarker(name == 'event' ? new Event() : null);});
 }
 
 // Menu boxes
 boxmenu = function(e, n) {
-	g = $('#' + n)
+	var g = $('#' + n);
 	if(g.css('display') != 'none')
 		g.fadeOut(150);
 	else
@@ -60,10 +63,10 @@ boxmenu = function(e, n) {
 
 // Function to add a menu item
 function addMenuItem(name) {
-	tool = $('<div>');
-	tool.title = name.capitalize();
-	$(tool).addClass('menu');
-	$(tool).css('backgroundImage', "url('resources/" + name + ".png')");
-	$(tool).click(boxmenu[name]);
+	var tool = $('<div>');
+	tool.attr('title', name.capitalize());
+	tool.addClass('menu');
+	tool.css('backgroundImage', "url('resources/" + name + ".png')");
+	tool.click(boxmenu[name]);
 	$('#toolbar').append(tool);
 }

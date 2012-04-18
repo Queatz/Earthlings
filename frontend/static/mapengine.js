@@ -4,12 +4,13 @@
 	Handles marker types.
 */
 function MapEngine(obj, mkrs) {
+	var _this = this;
+	
 	
 	///////////////
 	// Variables //
 	///////////////
 	
-	_this = this;
 	this.obj = $(obj);
 	this.markers = [];
 	this.loadMarkersTimeout = null;
@@ -20,11 +21,11 @@ function MapEngine(obj, mkrs) {
 	////////////////////
 	
 	this._init = function() {
-		center = google.maps.LatLng(0, 0);
-		zoom = 0;
+		var center = google.maps.LatLng(0, 0);
+		var zoom = 0;
 		
 		// Center map where it last was
-		ll = $.cookie('earthlings_latlng');
+		var ll = $.cookie('earthlings_latlng');
 		if(ll) {
 			ll = ll.split('_');
 			center = new google.maps.LatLng(parseFloat(ll[0]), parseFloat(ll[1]));
@@ -75,6 +76,8 @@ function MapEngine(obj, mkrs) {
 					events:{
 						click: options.click,
 						position_changed: function(m){
+							if(options.position_changed)
+								options.position_changed(m);
 							_this.mtips.updateTip(m.getPosition(), m.mtip);
 						},
 						mouseover: function(m){
@@ -87,7 +90,7 @@ function MapEngine(obj, mkrs) {
 						}
 					},
 					options:{
-						draggable: true,
+						draggable: options.draggable,
 						icon: new google.maps.MarkerImage(
 							'resources/' + options.image + '.png',
 							new google.maps.Size(),
@@ -106,7 +109,7 @@ function MapEngine(obj, mkrs) {
 	// Do this so markers zoom with the map.
 	this.updateMarkerZoom = function(m) {
 		var icon = m.getIcon();
-		z = m.getMap().zoom > 16 ? Math.pow(2, m.getMap().zoom) / 4096 : 32;
+		var z = m.getMap().zoom > 16 ? Math.pow(2, m.getMap().zoom) / 4096 : 32;
 		icon.size.height = z;
 		icon.size.width = z;
 		icon.scaledSize = icon.size;

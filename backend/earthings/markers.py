@@ -2,6 +2,7 @@ from stash import Item
 import cherrypy
 import json
 
+import hashlib
 import random
 import time
 
@@ -23,7 +24,7 @@ class Default(Item):
 			
 			# Create a new marker
 			i = newID()
-			m = Marker(stash, i)
+			m = Marker(self.stash, i)
 			
 			# Otherwise the session is lost...
 			cherrypy.session['keep'] = True
@@ -40,9 +41,9 @@ class Default(Item):
 			self.stash[(i,)] = m
 			
 			# Return the marker's ID
-			return i
+			return json.dumps(i)
 		elif 'rect' in a:
-			return json.dumps((self.stash(x) for x in self.stash.getMapped(a['rect'].split(','))))
+			return json.dumps([self.stash(x) for x in self.stash.getMapped(a['rect'].split(','))])
 
 class Marker(Item):
 	def __init__(self, stash, i):

@@ -7,34 +7,40 @@ function Marker() {
 	this.draggable = true;
 	
 	this.init = function(m){};
+	this.position_changed = function(m){};
 }
 
-Event.prototype = Marker;
+Event.prototype = new Marker();
 
 function Event(options) {
+	var _this = this;
+	
 	this.image = 'event';
+	this.positionTimeout = null;
+	this.id = null;
 	
 	this.init = function(m){
-		_this = map;
 		
 		m.save = function(n) {
 			$(m.tip[0]).html(n);
-			_this.mtips.updateTip(m.getPosition(), m.mtip);
+			map.mtips.updateTip(m.getPosition(), m.mtip);
 			m.tipLocked = false;
-			m.mtip = _this.mtips.showTip(m.getPosition(), _this.tip, m.mtip);
-			_this.mtips.hideTip(m.mtip);
+			m.mtip = map.mtips.showTip(m.getPosition(), map.tip, m.mtip);
+			map.mtips.hideTip(m.mtip);
 			
 			// Save to server
-			$.ajax(server, {data: {'add': 'event'}, complete: function(x, t){
-				$.ajax(server + '/' + t, {data: {'latlng': m.getPosition().toUrlValue()}});
-				$.ajax(server + '/' + t, {data: {'edit': n}});
+			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'event'}, success: function(x){
+				_this.id = x;
+				console.log(x);
+				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'latlng': m.getPosition().toUrlValue()}, success: function(x){console.log('latlng set', x)}});
+				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': n}});
 			}});
 		}
 		
 		m.tip = $('<span>');
 	
 		// Duration chooser
-		e_time = $('<div>').addClass('time').appendTo(m.tip);
+		var e_time = $('<div>').addClass('time').appendTo(m.tip);
 		e_time.text(1)
 		e_time[0].onclick = function(e) {
 			i = parseInt(e_time.text());
@@ -42,7 +48,7 @@ function Event(options) {
 		};
 		
 		// Subtract from duration
-		e_timeDOWN = $('<div>').addClass('timedown').appendTo(m.tip);
+		var e_timeDOWN = $('<div>').addClass('timedown').appendTo(m.tip);
 		e_timeDOWN.html('-');
 		e_timeDOWN[0].onclick = function(e) {
 			i = parseInt(e_time.text());
@@ -50,18 +56,34 @@ function Event(options) {
 		};
 	
 		// Title
-		e_title = $('<input>').attr('type', 'text').appendTo(m.tip);
+		var e_title = $('<input>').attr('type', 'text').appendTo(m.tip);
 	
 		// Submit
-		e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
+		var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
 		e_submit[0].onclick = (function(e){m.save(e_title.val());});
 	
 		// Discard
-		e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
-		e[0].onclick = (function(e){_this.mtips.hideTip(m.mtip, 0); _this.markers.splice(_this.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
+		var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
+		e[0].onclick = (function(e){map.mtips.hideTip(m.mtip, 0); map.markers.splice(map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
 	
 		m.tipLocked = true;
-		setTimeout(function() {m.mtip = _this.mtips.showTip(m.getPosition(), m.tip); e_title.focus();}, 600);
+		setTimeout(function() {m.mtip = map.mtips.showTip(m.getPosition(), m.tip); e_title.focus();}, 600);
+	};
+	
+	this.position_changed = function(m){
+		if(!this.id) return;
+		
+		if(this.positionsTimeout)
+			clearTimeout(this.positionsTimeout);
+		
+		this.positionTimeout = setTimeout(function(){
+			$.ajax(server, {
+				type: 'POST', dataType: 'json',
+				data: {'latlng': m.getPosition().toUrlValue()}, success: function(x){
+					console.log(x);
+				}
+			});
+		}, 100);
 	};
 	
 }
