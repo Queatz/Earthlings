@@ -81,6 +81,7 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 
 // Hide a tooltip
 tooltipOverlay.prototype.hideTip = function(div, t) {
+	if(!div) return;
 	if(typeof t == 'undefined') t = 500;
 	div[0].timeout = setTimeout(function(){div.tipsy('hide'); div[0].timeout = undefined;}, t);
 }

@@ -111,8 +111,9 @@ function MapEngine(obj, mkrs) {
 		while(i < _this.markers.length) {
 			m = _this.markers[i];
 			if(m.real.id) {
-				_this.markers.splice(i, 1);
+				_this.mtips.hideTip(m.mtip);
 				m.setMap(null);
+				_this.markers.splice(i, 1);
 			}
 			else
 				i++;
