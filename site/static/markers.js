@@ -22,7 +22,7 @@ function Event(options) {
 		this.id = options.id;
 		this.draggable = options.mine;
 		this.title = options.title;
-		this.end = options.end;
+		this.ends = options.ends / 60 / 60;
 	}
 	else {
 		this.id = null;
@@ -31,26 +31,28 @@ function Event(options) {
 	
 	this.init = function(m){
 		m.real = _this;
+		_this.m = m;
 		
-		m.save = function(n) {
-			$(m.tip[0]).html(n);
+		m.save = function(n, e) {
+			map.mtips.hideTip(m.mtip, 0);
+			_this.title = n;
+			_this.ends = e;
+			_this.solidify();
 			map.mtips.updateTip(m.getPosition(), m.mtip);
-			m.tipLocked = false;
-			m.mtip = map.mtips.showTip(m.getPosition(), map.tip, m.mtip);
+			m.mtip = map.mtips.showTip(m.getPosition(), m.tip, m.mtip);
 			map.mtips.hideTip(m.mtip);
 			
 			// Save to server
 			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'event'}, success: function(x){
 				_this.id = x;
-				console.log(x);
-				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'title': n})}, success: function(x){console.log('title set', x)}});
-				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'latlng': m.getPosition().toUrlValue()}, success: function(x){console.log('latlng set', x)}});
+				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'title': n, 'ends': e})}});
+				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'latlng': m.getPosition().toUrlValue()}});
 			}});
 		}
 		
+		m.tip = $('<span>');
+		
 		if(!options) {
-			m.tip = $('<span>');
-	
 			// Duration chooser
 			var e_time = $('<div>').addClass('time').appendTo(m.tip);
 			e_time.text(1)
@@ -58,7 +60,7 @@ function Event(options) {
 				i = parseInt(e_time.text());
 				e_time.text(isNaN(i) ? 1 : Math.min(12, i + 1));
 			};
-		
+			
 			// Subtract from duration
 			var e_timeDOWN = $('<div>').addClass('timedown').appendTo(m.tip);
 			e_timeDOWN.html('-');
@@ -66,13 +68,13 @@ function Event(options) {
 				i = parseInt(e_time.text());
 				e_time.text(isNaN(i) ? 1 : Math.max(1, i - 1));
 			};
-	
+			
 			// Title
 			var e_title = $('<input>').attr('type', 'text').appendTo(m.tip);
 	
 			// Submit
 			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
-			e_submit[0].onclick = (function(e){m.save(e_title.val());});
+			e_submit[0].onclick = (function(e){m.save(e_title.val(), parseInt(e_time.text()));});
 	
 			// Discard
 			var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
@@ -82,12 +84,29 @@ function Event(options) {
 			setTimeout(function() {m.mtip = map.mtips.showTip(m.getPosition(), m.tip); e_title.focus();}, 600);
 		}
 		else {
-			m.tip = $('<span>');
-			$(m.tip[0]).html(this.title);
-			m.tipLocked = false;
-			m.mtip = null;
+			_this.solidify();
 		}
 	};
+	
+	this.solidify = function() {
+		_this.m.tip.empty();
+		// Duration chooser
+		var e_time = $('<div>').addClass('time').appendTo(_this.m.tip);
+		e_time.html(Math.round(_this.ends))
+		if(_this.draggable) {
+			e_time[0].onclick = function(e) {
+				i = parseInt(e_time.text());
+				e_time.text(isNaN(i) ? 1 : Math.min(12, i + 1));
+			};
+		}
+		
+		$('<br>').appendTo(_this.m.tip);
+		
+		$(_this.m.tip).append(this.title);
+		
+		_this.m.tipLocked = false;
+		_this.m.mtip = null;
+	}
 	
 	this.position_changed = function(m){
 		if(!this.id) return;

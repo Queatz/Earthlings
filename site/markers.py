@@ -68,9 +68,7 @@ class Marker(Item):
 			# 'edit' is itself a dict
 			a = json.loads(a['edit'])
 			# If we are a known session
-			print('editing...')
 			if cherrypy.session.id in self.sessions:
-				print('allowed...')
 				# Then run an edit
 				if type(self.target) == Event:
 					if 'title' in a:
@@ -78,7 +76,7 @@ class Marker(Item):
 						print('', 'set title to', a['title'], '')
 					
 					if 'ends' in a:
-						self.target.ends = time.time() + int(a['ends'])
+						self.target.ends = time.time() + int(a['ends']) * 60 * 60
 	
 	def get(self):
 		return json.dumps(self.data())

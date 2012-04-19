@@ -16,7 +16,7 @@ function reloadMarkers(m) {
 						id: y[0],
 						mine: y[2],
 						title: y[4][0],
-						end: y[4][1]
+						ends: y[4][1]
 					}) : null,
 					new google.maps.LatLng(y[3][0], y[3][1])
 				);
