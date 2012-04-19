@@ -107,9 +107,15 @@ function MapEngine(obj, mkrs) {
 	
 	// Clear all markers
 	this.clear = function() {
-		while(_this.markers.length > 0) {
-			m = _this.markers.pop();
-			m.setMap(null);
+		i = 0;
+		while(i < _this.markers.length) {
+			m = _this.markers[i];
+			if(m.real.id) {
+				_this.markers.splice(i, 1);
+				m.setMap(null);
+			}
+			else
+				i++;
 		}
 	}
 	

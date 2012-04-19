@@ -30,6 +30,7 @@ function Event(options) {
 	}
 	
 	this.init = function(m){
+		m.real = _this;
 		
 		m.save = function(n) {
 			$(m.tip[0]).html(n);
