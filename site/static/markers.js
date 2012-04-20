@@ -29,18 +29,20 @@ function Event(options) {
 		this.draggable = true;
 	}
 	
+	// General init
 	this.init = function(m){
 		m.real = _this;
 		_this.m = m;
 		
+		_this.m.mtip = null;
+		
 		m.save = function(n, e) {
-			map.mtips.hideTip(m.mtip, 0);
 			_this.title = n;
 			_this.ends = e;
 			_this.solidify();
-			map.mtips.updateTip(m.getPosition(), m.mtip);
-			m.mtip = map.mtips.showTip(m.getPosition(), m.tip, m.mtip);
-			map.mtips.hideTip(m.mtip);
+			map.mtips.updateTip(_this.m.getPosition(), _this.m.mtip);
+			_this.m.mtip = map.mtips.showTip(m.getPosition(), _this.m.tip, _this.m.mtip);
+			map.mtips.hideTip(_this.m.mtip);
 			
 			// Save to server
 			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'event'}, success: function(x){
@@ -71,11 +73,11 @@ function Event(options) {
 			
 			// Title
 			var e_title = $('<input>').attr('type', 'text').appendTo(m.tip);
-	
+			
 			// Submit
 			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
 			e_submit[0].onclick = (function(e){m.save(e_title.val(), parseInt(e_time.text()));});
-	
+			
 			// Discard
 			var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
 			e[0].onclick = (function(e){map.mtips.hideTip(m.mtip, 0); map.markers.splice(map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
@@ -88,6 +90,7 @@ function Event(options) {
 		}
 	};
 	
+	// Regular tooltip
 	this.solidify = function() {
 		_this.m.tip.empty();
 		// Duration chooser
@@ -105,9 +108,9 @@ function Event(options) {
 		$(_this.m.tip).append(this.title);
 		
 		_this.m.tipLocked = false;
-		_this.m.mtip = null;
 	}
 	
+	// Save changes to the location
 	this.position_changed = function(m){
 		if(!this.id) return;
 		
@@ -117,9 +120,7 @@ function Event(options) {
 		this.positionTimeout = setTimeout(function(){
 			$.ajax(server + '/' + _this.id, {
 				type: 'POST', dataType: 'json',
-				data: {'latlng': m.getPosition().toUrlValue()}, success: function(x){
-					console.log(x);
-				}
+				data: {'latlng': m.getPosition().toUrlValue()}
 			});
 		}, 100);
 	};

@@ -33,7 +33,6 @@ class Earthlings:
 	@cherrypy.expose
 	def index(self):
 		return open(os.path.abspath('index.html'), 'r')
-		
 
 if __name__ == '__main__':
-	cherrypy.quickstart(Earthlings())
+	cherrypy.quickstart(Earthlings(), config = {'global': {'server.socket_port': 80}})
