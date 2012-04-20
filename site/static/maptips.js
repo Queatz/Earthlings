@@ -31,8 +31,26 @@ tooltipOverlay.prototype.updateTip = function(latLon, div) {
 
 // Show a tooltip
 tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
+	_this = this;
+	
 	if(!div) {
 		div = $('<div>');
+		
+		div[0].held = false;
+		
+		div.on('mouseover', function(e) {
+			if(div[0].timeout) {
+				clearTimeout(div[0].timeout);
+				div[0].timeout = null;
+			}
+			
+			div[0].held = true;
+		});
+		
+		div.on('mouseout', function(e) {
+			div[0].held = false;
+			_this.hideTip(div);
+		});
 	
 		this.getPanes().floatPane.appendChild(div[0]);
 	
@@ -65,6 +83,9 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 		div.dblclick(sP);
 	}
 	
+	if(div[0].held)
+		return;
+	
 	if(typeof tip != 'undefined')
 		div.tipHTML = tip;
 	
@@ -82,7 +103,7 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 // Hide a tooltip
 tooltipOverlay.prototype.hideTip = function(div, t) {
 	if(!div) return;
-	if(typeof t == 'undefined') t = 1000;
+	if(typeof t == 'undefined') t = 500;
 	div[0].timeout = setTimeout(function(){div.tipsy('hide'); div[0].timeout = undefined;}, t);
 }
 

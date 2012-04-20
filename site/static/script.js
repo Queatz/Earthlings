@@ -49,7 +49,7 @@ $(document).ready(function() {
 	//addTool('camp');
 	
 	// Add tipsy tooltips
-	$('[title]').tipsy({fade: true, gravity: 's', delayIn: 1400, offset: 3});
+	$('[title]').tipsy({fade: true, gravity: 's', delayIn: 400, offset: 3});
 });
 
 ///////////////////////////////////////////////////////
