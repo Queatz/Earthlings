@@ -107,7 +107,7 @@ function MapEngine(obj, mkrs) {
 	
 	// Clear all markers
 	this.clear = function() {
-		i = 0;
+		var i = 0;
 		while(i < _this.markers.length) {
 			m = _this.markers[i];
 			if(m.real.id) {

@@ -8,9 +8,29 @@ function reloadMarkers(m) {
 			'rect': m.getBounds().toUrlValue()
 		},
 		success: function(x){
-			map.clear();
-			for(z in x) {
-				y = x[z];
+			// Clear all markers out of bounds
+			var i = 0;
+			while(i < map.markers.length) {
+				m = map.markers[i];
+				if(m.real.id && !map.obj.gmap3('get').getBounds().contains(m.getPosition())) {
+					map.mtips.hideTip(m.mtip);
+					m.setMap(null);
+					map.markers.splice(i, 1);
+					continue;
+				}
+				i++;
+			}
+	
+			for(var z in x) {
+				var y = x[z];
+				
+				var found = false;
+				for(m in map.markers)
+					if(map.markers[m].real.id == y[0]) found = true;
+				
+				if(found)
+					continue;
+				
 				map.addMarker(
 					y[1] == 'event' ? new Event({
 						id: y[0],
