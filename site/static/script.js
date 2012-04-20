@@ -1,11 +1,19 @@
 var map;
 
 function reloadMarkers(m) {
+	var b = map.obj.gmap3('get').getBounds();
+	
+	if (map.isFullLng())
+		b = new google.maps.LatLngBounds(
+			new google.maps.LatLng(b.getSouthWest().lat(), -179.99), 
+			new google.maps.LatLng(b.getNorthEast().lat(), 179.99)
+		); 
+	
 	$.ajax(server, {
 		type: 'POST',
 		dataType: 'json', 
 		data: {
-			'rect': m.getBounds().toUrlValue()
+			'rect': b.toUrlValue()
 		},
 		success: function(x){
 			// Clear all markers out of bounds

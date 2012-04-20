@@ -89,6 +89,7 @@ function MapEngine(obj, mkrs) {
 						}
 					},
 					options:{
+						optimized: false, // So markers scale.
 						draggable: options.draggable,
 						icon: new google.maps.MarkerImage(
 							'resources/' + options.image + '.png',
@@ -157,6 +158,24 @@ function MapEngine(obj, mkrs) {
 	// So the map stays where you last had it
 	this._centerChanged = function(m) {
 		$.cookie('earthlings_latlng', m.center.lat() + '_' + m.center.lng() + '_' + m.zoom, {expires: 365});
+	}
+	
+	this.isFullLng = function() {
+		var map = _this.obj.gmap3('get');
+		var scale = Math.pow(2, map.getZoom()),
+		bounds = map.getBounds(),
+		ne = bounds.getNorthEast(),
+		sw = bounds.getSouthWest(),
+		lat = (ne.lat() <= 0 && sw.lat() >= 0) || (ne.lat() >= 0 && sw.lat() <= 0) ? 0 : Math.min(Math.abs(ne.lat()), Math.abs(sw.lat())), // closest latitude to equator
+		deg1 = new google.maps.LatLng(lat, 0),
+		deg2 = new google.maps.LatLng(lat, 1),
+		coord1 = map.getProjection().fromLatLngToPoint(deg1),
+		coord2 = map.getProjection().fromLatLngToPoint(deg2);
+		// distance for one long degree in pixels for this zoom level
+		var pixelsPerLonDegree = (coord2.x - coord1.x) * scale;
+		// width of map's holder should be <= 360 (deg) * pixelsPerLonDegree if full map is displayed
+		var width = _this.obj.width(); // width of map's holder div
+		return pixelsPerLonDegree * 360 <= width;
 	}
 	
 	// Load markers

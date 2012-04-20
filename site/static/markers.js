@@ -15,10 +15,10 @@ Event.prototype = new Marker();
 function Event(options) {
 	var _this = this;
 	
-	this.image = 'event';
 	this.positionTimeout = null;
 	
 	if(options) {
+		this.image = options.mine ? 'event-mine' : 'event';
 		this.id = options.id;
 		this.draggable = options.mine;
 		this.title = options.title;
@@ -27,6 +27,7 @@ function Event(options) {
 	else {
 		this.id = null;
 		this.draggable = true;
+		this.image = 'event-mine';
 	}
 	
 	// General init
