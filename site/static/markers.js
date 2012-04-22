@@ -42,7 +42,7 @@ function Event(options) {
 			_this.ends = e;
 			_this.solidify();
 			map.mtips.updateTip(_this.m.getPosition(), _this.m.mtip);
-			_this.m.mtip = map.mtips.showTip(m.getPosition(), _this.m.tip, _this.m.mtip);
+			_this.m.mtip = map.mtips.showTip(m.getPosition(), _this.m, _this.m.mtip);
 			map.mtips.hideTip(_this.m.mtip);
 			
 			// Save to server
@@ -84,7 +84,7 @@ function Event(options) {
 			e[0].onclick = (function(e){map.mtips.hideTip(m.mtip, 0); map.markers.splice(map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
 	
 			m.tipLocked = true;
-			setTimeout(function() {m.mtip = map.mtips.showTip(m.getPosition(), m.tip); e_title.focus();}, 600);
+			setTimeout(function() {m.mtip = map.mtips.showTip(m.getPosition(), m); e_title.focus();}, 600);
 		}
 		else {
 			_this.solidify();

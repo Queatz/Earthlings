@@ -81,7 +81,7 @@ function MapEngine(obj, mkrs) {
 						},
 						mouseover: function(m){
 							if(!m.tipLocked)
-								m.mtip = _this.mtips.showTip(m.getPosition(), m.tip, m.mtip);
+								m.mtip = _this.mtips.showTip(m.getPosition(), m, m.mtip);
 						},
 						mouseout: function(m){
 							if(!m.tipLocked)

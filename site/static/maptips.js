@@ -30,8 +30,10 @@ tooltipOverlay.prototype.updateTip = function(latLon, div) {
 }
 
 // Show a tooltip
-tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
-	_this = this;
+tooltipOverlay.prototype.showTip = function(latLon, m, div) {
+	var _this = this;
+	
+	var tip = m.tip;
 	
 	if(!div) {
 		div = $('<div>');
@@ -39,6 +41,8 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 		div[0].held = false;
 		
 		div.on('mouseover', function(e) {
+			if(m.tipLocked) return;
+			
 			if(div[0].timeout) {
 				clearTimeout(div[0].timeout);
 				div[0].timeout = null;
@@ -48,6 +52,8 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 		});
 		
 		div.on('mouseout', function(e) {
+			if(m.tipLocked) return;
+			
 			div[0].held = false;
 			_this.hideTip(div);
 		});
@@ -83,12 +89,15 @@ tooltipOverlay.prototype.showTip = function(latLon, tip, div) {
 		div.dblclick(sP);
 	}
 	
+	// Do nothing if held
 	if(div[0].held)
 		return;
 	
 	if(typeof tip != 'undefined')
 		div.tipHTML = tip;
 	
+	// If the tip is stil open
+	// then just cancel any close timeout
 	if(div[0].timeout) {
 		clearTimeout(div[0].timeout);
 		div[0].timeout = null;
