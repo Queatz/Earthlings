@@ -25,6 +25,7 @@ body {
 	padding: 0;
 	
 	background: -webkit-linear-gradient(bottom, #765 0%, #cba 90%, #fff 95%, #cba 100%);
+	background: -moz-linear-gradient(bottom, #765 0%, #cba 90%, #fff 95%, #cba 100%);
 	box-shadow: 0 0 16px black;
 }
 
