@@ -100,7 +100,9 @@ function Event(options) {
 		if(_this.draggable) {
 			e_time[0].onclick = function(e) {
 				i = parseInt(e_time.text());
-				e_time.text(isNaN(i) ? 1 : Math.min(12, i + 1));
+				i = isNaN(i) ? 1 : Math.min(12, i + 1);
+				e_time.text(i);
+				$.ajax(server + '/' + _this.id, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'ends': i})}});
 			};
 		}
 		
