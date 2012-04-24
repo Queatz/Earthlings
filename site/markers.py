@@ -73,10 +73,9 @@ class Marker(Item):
 				if type(self.target) == Event:
 					if 'title' in a:
 						self.target.title = a['title']
-						print('', 'set title to', a['title'], '')
 					
 					if 'ends' in a:
-						self.target.ends = time.time() + int(a['ends']) * 60 * 60
+						self.target.ends = time.time() + min(12, max(1, int(a['ends']))) * 60 * 60
 	
 	def get(self):
 		return json.dumps(self.data())
