@@ -35,4 +35,4 @@ class Earthlings:
 		return open(os.path.abspath('index.html'), 'r')
 
 if __name__ == '__main__':
-	cherrypy.quickstart(Earthlings(), config = {'global': {'server.socket_port': 4000}})
+	cherrypy.quickstart(Earthlings(), config = {'global': {'server.socket_port': 4000, 'server.socket_host': '0.0.0.0'}})
