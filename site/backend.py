@@ -8,14 +8,22 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 class Earthlings:
+	sp = os.path.join(current_dir, 'sessions')
+	if not os.path.isdir(sp):
+		os.mkdir(sp)
+	
 	_cp_config = {
 		'tools.sessions.on': True,
+		'tools.sessions.storage_type': 'file',
+		'tools.sessions.storage_path': sp,
 		'tools.sessions.timeout': 60 * 24,
 		
 		'tools.staticdir.on': True,
 		'tools.staticdir.root': current_dir,
 		'tools.staticdir.dir': 'static'
 	}
+	
+	del sp
 	
 	def __init__(self):
 		self.stash = markers.Stash()
