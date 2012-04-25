@@ -35,7 +35,16 @@ class Stash:
 			elif 'rect' in a:
 				c = tuple(float(x) for x in a['rect'].split(','))
 				c = [[c[0], c[1]], [c[2], c[3]]]
-				return [self((x['_id'],)) for x in self.mk.find({'loc': {'$within': {'$box': c}}})]
+				
+				return [self((x['_id'],)) for x in self.mk.find(
+					{
+						'loc': {'$within': {'$box': c}},
+						'$or': [
+							{'ends': {'$gt': time.time()}},
+							{'ends': {'$exists': False}}
+						]
+					}
+				)]
 		else:
 			i = bson.objectid.ObjectId(p[0])
 			
@@ -45,7 +54,10 @@ class Stash:
 				return
 			
 			if not a:
-				return [str(m['_id']), m['type'], cherrypy.session.id in m['sessions'], m['loc'], [m['title'], max(0, m['ends'] - time.time())] if m['type'] == 'event' else None]
+				t = m['ends'] - time.time()
+				if t <= 0:
+					return None
+				return [str(m['_id']), m['type'], cherrypy.session.id in m['sessions'], m['loc'], [m['title'], t] if m['type'] == 'event' else None]
 			else:
 				if 'latlng' in a:
 					loc = [float(x) for x in a['latlng'].split(',')]
