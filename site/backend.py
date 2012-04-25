@@ -1,6 +1,6 @@
 import cherrypy
-import stash
 import markers
+import json
 
 from cherrypy.lib.static import staticfile
 
@@ -18,17 +18,14 @@ class Earthlings:
 	}
 	
 	def __init__(self):
-		self.stash = stash.Stash(markers.Default())
-		self.stash[()].setup(self.stash)
+		self.stash = markers.Stash()
 	
 	@cherrypy.expose
 	def a(self, *args, **kwargs):
 		# Otherwise the session is lost...
 		cherrypy.session['keep'] = cherrypy.session.get('keep', 0) + 1
-	
-		a = self.stash(args, kwargs)
-		print('\033[1;31m', cherrypy.session.id, '\033[0m')
-		return a
+		
+		return json.dumps(self.stash(args, kwargs))
 	
 	@cherrypy.expose
 	def index(self):
