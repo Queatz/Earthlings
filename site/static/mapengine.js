@@ -3,8 +3,17 @@
 	Handles updating data from the server live.
 	Handles marker types.
 */
-function MapEngine(obj, mkrs) {
+function MapEngine(obj, mkrs, evts) {
 	var _this = this;
+	
+	////////////
+	// Events //
+	////////////
+	
+	this.getEvents = function() {
+		this.mapEventsTimeout = setTimeout(_this.getEvents, 4000);
+		_this.mapEvents(_this);
+	};
 	
 	///////////////
 	// Variables //
@@ -12,8 +21,10 @@ function MapEngine(obj, mkrs) {
 	
 	this.obj = $(obj);
 	this.markers = [];
-	this.loadMarkersTimeout = new TTimeout(function(){_this.reloadMarkers(_this.obj.gmap3('get'));}, 250);
+	this.loadMarkersTimeout = new TTimeout(function(){_this.reloadMarkers(_this);}, 250);
 	this.reloadMarkers = mkrs;
+	this.mapEvents = evts;
+	this.mapEventsTimeout = setTimeout(_this.getEvents, 4000);
 	
 	////////////////////
 	// Initialization //
@@ -157,6 +168,9 @@ function MapEngine(obj, mkrs) {
 	
 	// So the map stays where you last had it
 	this._centerChanged = function(m) {
+		if(m.center.lat() > 85) m.setCenter(new google.maps.LatLng(85, m.center.lng()));
+		if(m.center.lat() < -85) m.setCenter(new google.maps.LatLng(-85, m.center.lng()));
+		
 		$.cookie('earthlings_latlng', m.center.lat() + '_' + m.center.lng() + '_' + m.zoom, {expires: 365});
 	}
 	
