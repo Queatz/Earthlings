@@ -15,6 +15,7 @@ Event.prototype = new Marker();
 function Event(options) {
 	var _this = this;
 	
+	// Timeout to send new latlng when dragging a marker to a new position
 	this.positionTimeout = null;
 	
 	if(options) {
@@ -22,7 +23,7 @@ function Event(options) {
 		this.id = options.id;
 		this.draggable = options.mine;
 		this.title = options.title;
-		this.ends = options.ends / 60 / 60;
+		this.ends = options.ends;
 	}
 	else {
 		this.id = null;
@@ -60,7 +61,7 @@ function Event(options) {
 			var e_time = $('<div>').addClass('time').appendTo(m.tip);
 			e_time.text(1)
 			e_time[0].onclick = function(e) {
-				i = parseInt(e_time.text());
+				i = parseFloat(e_time.text());
 				e_time.text(isNaN(i) ? 1 : Math.min(12, i + 1));
 			};
 			
@@ -68,7 +69,7 @@ function Event(options) {
 			var e_timeDOWN = $('<div>').addClass('timedown').appendTo(m.tip);
 			e_timeDOWN.html('-');
 			e_timeDOWN[0].onclick = function(e) {
-				i = parseInt(e_time.text());
+				i = parseFloat(e_time.text());
 				e_time.text(isNaN(i) ? 1 : Math.max(1, i - 1));
 			};
 			
@@ -77,7 +78,7 @@ function Event(options) {
 			
 			// Submit
 			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
-			e_submit[0].onclick = (function(e){m.save(e_title.val(), parseInt(e_time.text()));});
+			e_submit[0].onclick = (function(e){m.save(e_title.val(), parseFloat(e_time.text()));});
 			
 			// Discard
 			var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
@@ -96,11 +97,11 @@ function Event(options) {
 		_this.m.tip.empty();
 		// Duration chooser
 		var e_time = $('<div>').addClass('time').appendTo(_this.m.tip);
-		e_time.html(Math.round(_this.ends))
+		e_time.html(Math.round(_this.ends / 60 / 15 ) / 4, 2)
 		if(_this.draggable) {
 			e_time[0].onclick = function(e) {
-				i = parseInt(e_time.text());
-				i = isNaN(i) ? 1 : Math.min(12, i + 1);
+				i = parseFloat(e_time.text());
+				i = isNaN(i) ? 1 : Math.min(12, i + 0.25);
 				e_time.text(i);
 				$.ajax(server + '/' + _this.id, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'ends': i})}});
 			};

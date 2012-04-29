@@ -130,4 +130,4 @@ class Stash:
 							
 							# Set end time (in hours from now; min 1, max 12)
 							if 'ends' in a:
-								self.mk.update({'_id': i}, {'$set': {'ends': time.time() + min(12, max(1, int(a['ends']))) * 60 * 60}})
+								self.mk.update({'_id': i}, {'$set': {'ends': time.time() + min(12, max(1, a['ends'])) * 60 * 60}})
