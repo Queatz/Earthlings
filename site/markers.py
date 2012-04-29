@@ -2,6 +2,11 @@ import pymongo as mongo, bson
 import cherrypy
 import json
 import time
+import live
+
+class Handler:
+	def json(self): pass
+	def act(self): pass
 
 class Stash:
 	def __init__(self):
@@ -11,10 +16,45 @@ class Stash:
 		# Set up database
 		if 'earthlings' not in c.database_names():
 			c.earthlings.markers.create_index([('loc', mongo.GEO2D)])
+			c.earthlings.events.create_index([('loc', mongo.GEO2D)])
 		
 		# Database links
 		self.db = c['earthlings']
 		self.mk = self.db['markers']
+		self.ev = self.db['events']
+		
+		# Type handlers
+		self.handle = {}
+	
+	def addHandler(self, name, handle):
+		self.handle[name] = handle
+	
+	def update(self, i, d):
+		self.mk.update({'_id': i}, {'$set': d})
+	
+	def insertEvent(self, t, i = None, x = None):
+		d = {
+			'type': t,
+			'time': time.time()
+		}
+		
+		if i: d['id'] = i
+		if x: d['data'] = x
+		
+		self.ev.insert(d)
+	
+	def markersWithin(self, c):
+		return self.mk.find(
+			{
+				# Within box
+				'loc': {'$within': {'$box': c}},
+				# If marker ends at a certain time, then don't fetch it
+				'$or': [
+					{'ends': {'$gt': time.time()}},
+					{'ends': {'$exists': False}}
+				]
+			}
+		)
 	
 	def __call__(self, p, a = None):
 		# Global actions
@@ -39,6 +79,9 @@ class Stash:
 				# Insert marker and get it's ID
 				i = self.mk.insert(m)
 				
+				# Event
+				self.insertEvent('add', i)
+				
 				# Return the marker's ID as a string
 				return str(i)
 			
@@ -49,17 +92,27 @@ class Stash:
 				c = [[c[0], c[1]], [c[2], c[3]]]
 				
 				# Return markers within rect bounds
-				return [self((x['_id'],)) for x in self.mk.find(
-					{
-						# Within box
-						'loc': {'$within': {'$box': c}},
-						# If marker ends at a certain time, then don't fetch it
-						'$or': [
-							{'ends': {'$gt': time.time()}},
-							{'ends': {'$exists': False}}
-						]
-					}
-				)]
+				r = live.Live()
+				
+				for x in self.markersWithin(c):
+					d = self((x['_id'],))
+					r.add('', 'add', [
+						d['id'],
+						d['type'],
+						[
+							['mine', d['mine']],
+							['latlng', d['latlng']],
+						] + [[y, d['data'][y]] for y in d['data']]
+					])
+				
+				# For events
+				cherrypy.session['showing'] = [x[0] for x in r]
+				cherrypy.session['rect'] = c
+				cherrypy.session['full refresh'] = time.time()
+				
+				return r
+			elif 'events' in a:
+				cherrypy.session['full refresh'] = time.time()
 		
 		# Marker actions
 		else:
@@ -71,35 +124,25 @@ class Stash:
 			
 			# Do nothing if no marker was found
 			if not m:
-				return
+				return None
 			
 			# If not performing an action, then get the marker
 			if not a:
 				# Type-specific data for the marker
-				data = None
-				
-				# Marker
-				if m['type'] == 'event':
-					# Convert end time to ends in time
-					t = m['ends'] - time.time()
-					
-					# If Event marker expired then don't expose it
-					if t <= 0:
-						data = None
-					
-					# Event data
-					data = [m['title'], t]
-				
-				# Camp
-				elif m['type'] == 'camp':
-					pass
+				data = self.handle[m['type']].json(m)
 				
 				# All markers have some data
 				if data is None:
 					return None
 				
-				# Return marker signature [id, type, mine, loc, [...]]
-				return [str(m['_id']), m['type'], cherrypy.session.id in m['sessions'], m['loc'], data]
+				# Return marker signature
+				return {
+					'id': str(m['_id']),
+					'type': m['type'],
+					'mine': cherrypy.session.id in m['sessions'],
+					'latlng': m['loc'],
+					'data': data
+				}
 			
 			# Performing an action...
 			else:
@@ -107,27 +150,12 @@ class Stash:
 				if 'latlng' in a:
 					# Convert latlng string to loc array
 					loc = [float(x) for x in a['latlng'].split(',')]
-					
+			
+					# Event
+					self.insertEvent('move', m['_id'])
+			
 					# Update loc
 					self.mk.update({'_id': i}, {'$set': {'loc': loc}})
-				
-				# Edit marker
-				if 'edit' in a:
-					# 'edit' is itself a dict
-					a = json.loads(a['edit'])
-					
-					# If we are a known session
-					if cherrypy.session.id in m['sessions']:
-						# Event
-						if m['type'] == 'event':
-							# Set title (max 256 chars)
-							if 'title' in a:
-								# Clip title length
-								if len(a['title']) > 256:
-									a['title'] = a['title'][:256]
-								
-								self.mk.update({'_id': i}, {'$set': {'title': a['title']}})
-							
-							# Set end time (in hours from now; min 1, max 12)
-							if 'ends' in a:
-								self.mk.update({'_id': i}, {'$set': {'ends': time.time() + min(12, max(1, a['ends'])) * 60 * 60}})
+				else:
+					# Type-specific actions
+					return self.handle[m['type']].act(m, a)

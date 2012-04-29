@@ -1,8 +1,9 @@
 import cherrypy
+from cherrypy.lib.static import staticfile
 import markers
 import json
 
-from cherrypy.lib.static import staticfile
+import event
 
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +34,7 @@ class Earthlings:
 	
 	def __init__(self):
 		self.stash = markers.Stash()
+		self.stash.addHandler('event', event.Handler(self.stash))
 	
 	@cherrypy.expose
 	def a(self, *args, **kwargs):
@@ -40,7 +42,7 @@ class Earthlings:
 		cherrypy.session['keep'] = cherrypy.session.get('keep', 0) + 1
 		
 		# Return the stash's response
-		return json.dumps(self.stash(args, kwargs))
+		return json.dumps(self.stash(args, kwargs), separators = (',',':'))
 	
 	@cherrypy.expose
 	def index(self):

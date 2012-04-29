@@ -1,57 +1,4 @@
-var map;
-
-function reloadMarkers(m) {
-	var b = map.obj.gmap3('get').getBounds();
-	
-	if (map.isFullLng())
-		b = new google.maps.LatLngBounds(
-			new google.maps.LatLng(b.getSouthWest().lat(), -179.99), 
-			new google.maps.LatLng(b.getNorthEast().lat(), 179.99)
-		); 
-	
-	$.ajax(server, {
-		type: 'POST',
-		dataType: 'json', 
-		data: {
-			'rect': b.toUrlValue()
-		},
-		success: function(x){
-			// Clear all markers out of bounds
-			var i = 0;
-			while(i < map.markers.length) {
-				m = map.markers[i];
-				if(m.real.id && !map.obj.gmap3('get').getBounds().contains(m.getPosition())) {
-					map.mtips.hideTip(m.mtip);
-					m.setMap(null);
-					map.markers.splice(i, 1);
-					continue;
-				}
-				i++;
-			}
-	
-			for(var z in x) {
-				var y = x[z];
-				
-				var found = false;
-				for(m in map.markers)
-					if(map.markers[m].real.id == y[0]) found = true;
-				
-				if(found)
-					continue;
-				
-				map.addMarker(
-					y[1] == 'event' ? new Event({
-						id: y[0],
-						mine: y[2],
-						title: y[4][0],
-						ends: y[4][1]
-					}) : null,
-					new google.maps.LatLng(y[3][0], y[3][1])
-				);
-			}
-		}
-	});
-}
+var manager;
 
 $(document).ready(function() {
 	var e;
@@ -66,7 +13,7 @@ $(document).ready(function() {
 	$('body').append(e);
 	
 	// Mechanics
-	map = new MapEngine($('#map'), reloadMarkers);
+	manager = new Manager($('#map'));
 	
 	// Populate the menu
 	addMenuItem('navigate');
@@ -89,7 +36,7 @@ function addTool(name) {
 	tool.addClass('tool');
 	tool.css('backgroundImage', "url('resources/" + name + ".png')");
 	$('#toolbar').append(tool);
-	tool.click(function(){map.addMarker(name == 'event' ? new Event() : null);});
+	tool.click(function(){manager.map.addMarker(name == 'event' ? new Event() : null);});
 }
 
 // Menu boxes

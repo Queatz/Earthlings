@@ -1,12 +1,17 @@
-
 // Default map marker options
 function Marker() {
 	this.image = '';
 	this.title = '';
-	this.click = null;
 	this.draggable = true;
+	this.id = null;
 	
+	// Function to call when clicked
+	this.click = null;
+	
+	// Function to call after the marker was added to the map
 	this.init = function(m){};
+	
+	// Function to call when the marker position changes
 	this.position_changed = function(m){};
 }
 
@@ -19,17 +24,40 @@ function Event(options) {
 	this.positionTimeout = null;
 	
 	if(options) {
-		this.image = options.mine ? 'event-mine' : 'event';
 		this.id = options.id;
-		this.draggable = options.mine;
-		this.title = options.title;
-		this.ends = options.ends;
 	}
 	else {
 		this.id = null;
 		this.draggable = true;
 		this.image = 'event-mine';
 	}
+	
+	// Handle updates from server
+	this.handle = function(a) {
+		switch(a[0]) {
+			case 'latlng':
+				_this.latlng = new google.maps.LatLng(a[1][0], a[1][1]);
+				break;
+			case 'mine':
+				_this.image = a[1] ? 'event-mine' : 'event';
+				_this.draggable = a[1];
+				break;
+			case 'title':
+				_this.title = a[1];
+				break;
+			case 'ends':
+				_this.ends = a[1];
+				break;
+			default:
+				console.log(_this, 'Unknown handle: ', a);
+		}
+		
+		// If we have enough information about the marker, then add it to the map.
+		if(!_this.m) {
+			if(_this.ends && _this.title && _this.latlng && _this.image)
+				manager.map.addMarker(_this);
+		}
+	};
 	
 	// General init
 	this.init = function(m){
@@ -40,15 +68,16 @@ function Event(options) {
 		
 		m.save = function(n, e) {
 			_this.title = n;
-			_this.ends = e;
+			_this.ends = e * 60 * 60;
 			_this.solidify();
-			map.mtips.updateTip(_this.m.getPosition(), _this.m.mtip);
-			_this.m.mtip = map.mtips.showTip(m.getPosition(), _this.m, _this.m.mtip);
-			map.mtips.hideTip(_this.m.mtip);
+			manager.map.mtips.updateTip(_this.m.getPosition(), _this.m.mtip);
+			_this.m.mtip = manager.map.mtips.showTip(m.getPosition(), _this.m, _this.m.mtip);
+			manager.map.mtips.hideTip(_this.m.mtip);
 			
 			// Save to server
 			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'event'}, success: function(x){
 				_this.id = x;
+				manager.registerPath(x, _this);
 				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'title': n, 'ends': e})}});
 				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'latlng': m.getPosition().toUrlValue()}});
 			}});
@@ -59,7 +88,7 @@ function Event(options) {
 		if(!options) {
 			// Duration chooser
 			var e_time = $('<div>').addClass('time').appendTo(m.tip);
-			e_time.text(1)
+			e_time.text(1);
 			e_time[0].onclick = function(e) {
 				i = parseFloat(e_time.text());
 				e_time.text(isNaN(i) ? 1 : Math.min(12, i + 1));
@@ -82,10 +111,10 @@ function Event(options) {
 			
 			// Discard
 			var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
-			e[0].onclick = (function(e){map.mtips.hideTip(m.mtip, 0); map.markers.splice(map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
+			e[0].onclick = (function(e){manager.map.mtips.hideTip(m.mtip, 0); manager.map.markers.splice(manager.map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
 	
 			m.tipLocked = true;
-			setTimeout(function() {m.mtip = map.mtips.showTip(m.getPosition(), m); e_title.focus();}, 600);
+			setTimeout(function() {m.mtip = manager.map.mtips.showTip(m.getPosition(), m); e_title.focus();}, 600);
 		}
 		else {
 			_this.solidify();
@@ -109,19 +138,19 @@ function Event(options) {
 		
 		$('<br>').appendTo(_this.m.tip);
 		
-		$(_this.m.tip).append(this.title);
+		$(_this.m.tip).append(_this.title);
 		
 		_this.m.tipLocked = false;
 	}
 	
 	// Save changes to the location
 	this.position_changed = function(m){
-		if(!this.id) return;
+		if(!_this.id || !(manager.map.activeDrag == m)) return;
 		
-		if(this.positionTimeout)
-			clearTimeout(this.positionTimeout);
+		if(_this.positionTimeout)
+			clearTimeout(_this.positionTimeout);
 		
-		this.positionTimeout = setTimeout(function(){
+		_this.positionTimeout = setTimeout(function(){
 			$.ajax(server + '/' + _this.id, {
 				type: 'POST', dataType: 'json',
 				data: {'latlng': m.getPosition().toUrlValue()}

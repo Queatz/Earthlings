@@ -3,7 +3,7 @@
 	Handles updating data from the server live.
 	Handles marker types.
 */
-function MapEngine(obj, mkrs, evts) {
+function MapEngine(obj, manager) {
 	var _this = this;
 	
 	////////////
@@ -11,7 +11,7 @@ function MapEngine(obj, mkrs, evts) {
 	////////////
 	
 	this.getEvents = function() {
-		this.mapEventsTimeout = setTimeout(_this.getEvents, 4000);
+		_this.mapEventsTimeout = setTimeout(_this.getEvents, 2000);
 		_this.mapEvents(_this);
 	};
 	
@@ -21,10 +21,10 @@ function MapEngine(obj, mkrs, evts) {
 	
 	this.obj = $(obj);
 	this.markers = [];
+	this.reloadMarkers = manager.reload;
+	this.mapEvents = manager.events;
 	this.loadMarkersTimeout = new TTimeout(function(){_this.reloadMarkers(_this);}, 250);
-	this.reloadMarkers = mkrs;
-	this.mapEvents = evts;
-	this.mapEventsTimeout = setTimeout(_this.getEvents, 4000);
+	//this.mapEventsTimeout = setTimeout(_this.getEvents, 2000);
 	
 	////////////////////
 	// Initialization //
@@ -43,12 +43,12 @@ function MapEngine(obj, mkrs, evts) {
 		}
 		
 		// Create the Google Map
-		this.obj.gmap3({
+		_this.obj.gmap3({
 			options: {
 				center: center,
 				zoom: zoom,
 				disableDefaultUI: true,
-				mapTypeId: this.getMapTypeFromZoom(zoom),
+				mapTypeId: _this.getMapTypeFromZoom(zoom),
 				backgroundColor: '#222',
 			},
 			events: {
@@ -58,7 +58,23 @@ function MapEngine(obj, mkrs, evts) {
 			}
 		});
 		
-		this.mtips = new tooltipOverlay(this.obj.gmap3('get'));
+		_this.mtips = new tooltipOverlay(_this.obj.gmap3('get'));
+	}
+	
+	////////////
+	// Useful //
+	////////////
+	
+	this.bounds = function() {
+		var b = _this.obj.gmap3('get').getBounds();
+	
+		if (_this.isFullLng())
+			b = new google.maps.LatLngBounds(
+				new google.maps.LatLng(b.getSouthWest().lat(), -179.99),
+				new google.maps.LatLng(b.getNorthEast().lat(), 179.99)
+			);
+	
+		return b;
 	}
 	
 	//////////////////
@@ -71,23 +87,23 @@ function MapEngine(obj, mkrs, evts) {
 	// title: title
 	// image: image name
 	// tooltip: bool
-	this.addMarker = function(options, latlng) {
+	this.addMarker = function(mkr) {
 		_this.obj.gmap3(
 			{	action: 'addMarker',
-				latLng: latlng || _this.obj.gmap3('get').getCenter(),
+				latLng: mkr.latlng || _this.obj.gmap3('get').getCenter(),
 				marker: {
 					callback: function(m){
 						_this.updateMarkerZoom(m);
 						_this.markers.push(m);
 						
-						if(options.init)
-							options.init(m);
+						if(mkr.init)
+							mkr.init(m);
 					},
 					events:{
-						click: options.click,
+						click: mkr.click,
 						position_changed: function(m){
-							if(options.position_changed)
-								options.position_changed(m);
+							if(mkr.position_changed)
+								mkr.position_changed(m);
 							_this.mtips.updateTip(m.getPosition(), m.mtip);
 						},
 						mouseover: function(m){
@@ -97,24 +113,34 @@ function MapEngine(obj, mkrs, evts) {
 						mouseout: function(m){
 							if(!m.tipLocked)
 								_this.mtips.hideTip(m.mtip);
-						}
+						},
+						dragstart: _this.dragstart,
+						dragend: _this.dragend
 					},
 					options:{
 						optimized: false, // So markers scale.
-						draggable: options.draggable,
+						draggable: mkr.draggable,
 						icon: new google.maps.MarkerImage(
-							'resources/' + options.image + '.png',
+							'resources/' + mkr.image + '.png',
 							new google.maps.Size(),
 							null,
 							new google.maps.Point()
 						),
 						clickable: true,
 						raiseOnDrag: false,
-						animation: latlng ? null : google.maps.Animation.DROP
+						animation: mkr.latlng ? null : google.maps.Animation.DROP
 					}
 				}
 			}
 		);
+	}
+	
+	// Remove a marker by it's index in the markers array
+	this.removeMarker = function(i) {
+		var m = _this.markers[i];
+		_this.mtips.hideTip(m.mtip);
+		m.setMap(null);
+		_this.markers.splice(i, 1);
 	}
 	
 	// Clear all markers
@@ -147,6 +173,14 @@ function MapEngine(obj, mkrs, evts) {
 	// Event Handlers //
 	////////////////////
 	
+	this.dragstart = function(m) {
+		_this.activeDrag = m;
+	}
+	
+	this.dragend = function(m) {
+		_this.activeDrag = null;
+	}
+	
 	// Labels are shown in the middle zoom levels
 	this.getMapTypeFromZoom = function(z) {
 		if(z < 17 && z > 5)
@@ -159,9 +193,8 @@ function MapEngine(obj, mkrs, evts) {
 	this._zoomChanged = function(m) {
 		m.setMapTypeId(_this.getMapTypeFromZoom(m.zoom));
 		
-		for(i in _this.markers) {
+		for(i in _this.markers)
 			_this.updateMarkerZoom(_this.markers[i]);
-		}
 		
 		_this._centerChanged(m);
 	}
