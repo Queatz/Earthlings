@@ -75,14 +75,31 @@ class Stash:
 			
 			# If not performing an action, then get the marker
 			if not a:
-				# If marker expired then don't expose it
-				t = m['ends'] - time.time()
-				if t <= 0:
+				# Type-specific data for the marker
+				data = None
+				
+				# Marker
+				if m['type'] == 'event':
+					# Convert end time to ends in time
+					t = m['ends'] - time.time()
+					
+					# If Event marker expired then don't expose it
+					if t <= 0:
+						data = None
+					
+					# Event data
+					data = [m['title'], t]
+				
+				# Camp
+				elif m['type'] == 'camp':
+					pass
+				
+				# All markers have some data
+				if data is None:
 					return None
 				
 				# Return marker signature [id, type, mine, loc, [...]]
-				# Event [...]: [title, ends]
-				return [str(m['_id']), m['type'], cherrypy.session.id in m['sessions'], m['loc'], [m['title'], t] if m['type'] == 'event' else None]
+				return [str(m['_id']), m['type'], cherrypy.session.id in m['sessions'], m['loc'], data]
 			
 			# Performing an action...
 			else:
@@ -101,10 +118,14 @@ class Stash:
 					
 					# If we are a known session
 					if cherrypy.session.id in m['sessions']:
-						# Then run an edit
+						# Event
 						if m['type'] == 'event':
 							# Set title (max 256 chars)
 							if 'title' in a:
+								# Clip title length
+								if len(a['title']) > 256:
+									a['title'] = a['title'][:256]
+								
 								self.mk.update({'_id': i}, {'$set': {'title': a['title']}})
 							
 							# Set end time (in hours from now; min 1, max 12)

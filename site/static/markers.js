@@ -73,7 +73,7 @@ function Event(options) {
 			};
 			
 			// Title
-			var e_title = $('<input>').attr('type', 'text').appendTo(m.tip);
+			var e_title = $('<input>').attr('type', 'text').attr('maxlength', '256').appendTo(m.tip);
 			
 			// Submit
 			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
