@@ -53,13 +53,6 @@ div.menu {
 	margin: auto;
 	width: 100px;
 	height: 100px;
-	background: white;
-	border-radius: 100%;
-	border: 2px solid gray;
-	box-shadow: inset 0 0 60px gray;
-	text-align: center;
-	font-size: 50px;
-	color: black;
 	display: inline-block;
 	-webkit-user-select: none;
 }

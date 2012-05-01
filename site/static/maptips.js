@@ -14,11 +14,11 @@ tooltipOverlay.prototype.onAdd = function() {
 }
 
 // Update tooltip location
-tooltipOverlay.prototype.updateTip = function(latLon, div) {
-	if(!div) return;
+tooltipOverlay.prototype.updateTip = function(m) {
+	if(!m.mdiv) return;
 	for(d in this.waiting) {
-		if(this.waiting[d][0][0] == div[0]) {
-			this.waiting[d][1] = latLon;
+		if(this.waiting[d][0][0] == m.mdiv[0]) {
+			this.waiting[d][1] = m.getPosition();
 			
 			var px = this.getProjection().fromLatLngToDivPixel(this.waiting[d][1]);
 			this.waiting[d][0].css({
@@ -30,37 +30,35 @@ tooltipOverlay.prototype.updateTip = function(latLon, div) {
 }
 
 // Show a tooltip
-tooltipOverlay.prototype.showTip = function(latLon, m, div) {
+tooltipOverlay.prototype.showTip = function(m) {
 	var _this = this;
 	
-	var tip = m.tip;
-	
-	if(!div) {
-		div = $('<div>');
+	if(!m.mdiv) {
+		m.mdiv = $('<div>');
 		
-		div[0].held = false;
+		m.mdiv[0].held = false;
 		
-		div.on('mouseover', function(e) {
+		m.mdiv.on('mouseover', function(e) {
 			if(m.tipLocked) return;
 			
-			if(div[0].timeout) {
-				clearTimeout(div[0].timeout);
-				div[0].timeout = null;
+			if(m.mdiv[0].timeout) {
+				clearTimeout(m.mdiv[0].timeout);
+				m.mdiv[0].timeout = null;
 			}
 			
-			div[0].held = true;
+			m.mdiv[0].held = true;
 		});
 		
-		div.on('mouseout', function(e) {
+		m.mdiv.on('mouseout', function(e) {
 			if(m.tipLocked) return;
 			
-			div[0].held = false;
-			_this.hideTip(div);
+			m.mdiv[0].held = false;
+			_this.hideTip(m);
 		});
 	
-		this.getPanes().floatPane.appendChild(div[0]);
+		this.getPanes().floatPane.appendChild(m.mdiv[0]);
 	
-		div.css({
+		m.mdiv.css({
 			position: 'absolute',
 			width: 200,
 			height: 0,
@@ -68,52 +66,50 @@ tooltipOverlay.prototype.showTip = function(latLon, m, div) {
 			cursor: 'default'
 		});
 	
-		this.waiting.push([div, latLon]);
-		this.updateTip(latLon, div);
+		this.waiting.push([m.mdiv, m.getPosition()]);
+		this.updateTip(m);
 		
-		div.tipsy({
+		m.mdiv.tipsy({
 			opacity: 0.95,
 			delayOut: 500,
 			trigger: 'manual',
 			gravity: 's',
 			fade: true,
 			html: true,
-			title: function(){return div.tipHTML;},
-			insertTo: div
+			title: function(){return m.tip;},
+			insertTo: m.mdiv[0]
 		});
 		
 		// Make tooltips interactable
 		var sP = function(e){e.stopPropagation();}
-		div.mousedown(sP);
-		div.click(sP);
-		div.dblclick(sP);
+		m.mdiv.mousedown(sP);
+		m.mdiv.click(sP);
+		m.mdiv.dblclick(sP);
 	}
-	
-	// Do nothing if held
-	if(div[0].held)
-		return;
-	
-	if(typeof tip != 'undefined')
-		div.tipHTML = tip;
 	
 	// If the tip is stil open
 	// then just cancel any close timeout
-	if(div[0].timeout) {
-		clearTimeout(div[0].timeout);
-		div[0].timeout = null;
+	if(m.mdiv[0].timeout) {
+		clearTimeout(m.mdiv[0].timeout);
+		m.mdiv[0].timeout = null;
 	}
 	else {
-		div.tipsy('show');
+		if(m.tipShowCallback)
+			m.tipShowCallback(m);
+		m.mdiv.tipsy('show');
 	}
-	
-	return div;
 }
 
 // Hide a tooltip
-tooltipOverlay.prototype.hideTip = function(div, t) {
-	if(!div) return;
+tooltipOverlay.prototype.hideTip = function(m, t) {
+	if(!m || !m.mdiv) return;
 	if(typeof t == 'undefined') t = 500;
-	div[0].timeout = setTimeout(function(){div.tipsy('hide'); div[0].timeout = undefined;}, t);
+	m.mdiv[0].timeout = setTimeout(function(){
+		if(m.tipHideCallback)
+			m.tipHideCallback(m);
+		m.mdiv.tipsy('hide');
+		m.mdiv[0].timeout = undefined;
+	}, t);
 }
 
 // Draw tooltips

@@ -11,7 +11,7 @@ function MapEngine(obj, manager) {
 	////////////
 	
 	this.getEvents = function() {
-		_this.mapEventsTimeout = setTimeout(_this.getEvents, 2000);
+		_this.mapEventsTimeout = setTimeout(_this.getEvents, 4000);
 		_this.mapEvents(_this);
 	};
 	
@@ -24,7 +24,7 @@ function MapEngine(obj, manager) {
 	this.reloadMarkers = manager.reload;
 	this.mapEvents = manager.events;
 	this.loadMarkersTimeout = new TTimeout(function(){_this.reloadMarkers(_this);}, 250);
-	this.mapEventsTimeout = setTimeout(_this.getEvents, 2000);
+	//this.mapEventsTimeout = setTimeout(_this.getEvents, 4000);
 	
 	////////////////////
 	// Initialization //
@@ -104,15 +104,15 @@ function MapEngine(obj, manager) {
 						position_changed: function(m){
 							if(mkr.position_changed)
 								mkr.position_changed(m);
-							_this.mtips.updateTip(m.getPosition(), m.mtip);
+							_this.mtips.updateTip(m);
 						},
 						mouseover: function(m){
 							if(!m.tipLocked)
-								m.mtip = _this.mtips.showTip(m.getPosition(), m, m.mtip);
+								m.mtip = _this.mtips.showTip(m);
 						},
 						mouseout: function(m){
 							if(!m.tipLocked)
-								_this.mtips.hideTip(m.mtip);
+								_this.mtips.hideTip(m);
 						},
 						dragstart: _this.dragstart,
 						dragend: _this.dragend
