@@ -17,6 +17,7 @@ class Stash:
 		if 'earthlings' not in c.database_names():
 			c.earthlings.markers.create_index([('loc', mongo.GEO2D)])
 			c.earthlings.events.create_index([('loc', mongo.GEO2D)])
+			c.earthlings.events.create_index([('type', mongo.ASCENDING), ('id', mongo.ASCENDING)], unique = True)
 		
 		# Database links
 		self.db = c['earthlings']
@@ -32,16 +33,8 @@ class Stash:
 	def update(self, i, d):
 		self.mk.update({'_id': i}, {'$set': d})
 	
-	def insertEvent(self, t, i = None, x = None):
-		d = {
-			'type': t,
-			'time': time.time()
-		}
-		
-		if i: d['id'] = i
-		if x: d['data'] = x
-		
-		self.ev.insert(d)
+	def insertEvent(self, i, t):
+		self.ev.update({'id': i, 'type': t}, {'$set': {'time': time.time()}}, True)
 	
 	def markersWithin(self, c):
 		return self.mk.find(
