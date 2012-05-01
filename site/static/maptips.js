@@ -103,7 +103,7 @@ tooltipOverlay.prototype.showTip = function(m) {
 // Hide a tooltip
 tooltipOverlay.prototype.hideTip = function(m, t) {
 	if(!m || !m.mdiv) return;
-	if(typeof t == 'undefined') t = 500;
+	if(typeof t == 'undefined') t = 0;
 	m.mdiv[0].timeout = setTimeout(function(){
 		if(m.tipHideCallback)
 			m.tipHideCallback(m);
