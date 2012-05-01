@@ -15,13 +15,11 @@ tooltipOverlay.prototype.onAdd = function() {
 
 // Update tooltip location
 tooltipOverlay.prototype.updateTip = function(m) {
-	if(!m.mdiv) return;
+	if(!m || !m.mdiv) return;
 	for(d in this.waiting) {
-		if(this.waiting[d][0][0] == m.mdiv[0]) {
-			this.waiting[d][1] = m.getPosition();
-			
-			var px = this.getProjection().fromLatLngToDivPixel(this.waiting[d][1]);
-			this.waiting[d][0].css({
+		if(this.waiting[d] == m) {
+			var px = this.getProjection().fromLatLngToDivPixel(m.getPosition());
+			this.waiting[d].mdiv.css({
 				top: px.y - 8,
 				left: px.x - 100,
 			});
@@ -31,6 +29,8 @@ tooltipOverlay.prototype.updateTip = function(m) {
 
 // Show a tooltip
 tooltipOverlay.prototype.showTip = function(m) {
+	if(!m) return;
+	
 	var _this = this;
 	
 	if(!m.mdiv) {
@@ -66,7 +66,7 @@ tooltipOverlay.prototype.showTip = function(m) {
 			cursor: 'default'
 		});
 	
-		this.waiting.push([m.mdiv, m.getPosition()]);
+		this.waiting.push(m);
 		this.updateTip(m);
 		
 		m.mdiv.tipsy({
@@ -115,5 +115,5 @@ tooltipOverlay.prototype.hideTip = function(m, t) {
 // Draw tooltips
 tooltipOverlay.prototype.draw = function() {
 	for(var d in this.waiting)
-		this.updateTip(this.waiting[d][1], this.waiting[d][0]);
+		this.updateTip(this.waiting[d]);
 }
