@@ -37,16 +37,35 @@ function Event(options) {
 		switch(a[0]) {
 			case 'latlng':
 				_this.latlng = new google.maps.LatLng(a[1][0], a[1][1]);
+				
+				if(_this.m)
+					_this.m.setPosition(_this.latlng);
+				
 				break;
 			case 'mine':
-				_this.image = a[1] ? 'event-mine' : 'event';
+				_this.image = 'resources/' + (a[1] ? 'event-mine' : 'event') + '.png';
 				_this.draggable = a[1];
+				
+				if(_this.m) {
+					var i = _this.m.getIcon();
+					i.url = _this.image;
+					_this.m.setIcon(i);
+				}
+				
 				break;
 			case 'title':
 				_this.title = a[1];
+				
+				if(_this.elm_title)
+					_this.elm_title.html(_this.title);
+				
 				break;
 			case 'ends':
 				_this.ends = a[1];
+				
+				if(_this.elm_ends)
+					_this.elm_ends.value(_this.ends);
+				
 				break;
 			default:
 				console.log(_this, 'Unknown handle: ', a);
@@ -124,14 +143,17 @@ function Event(options) {
 	// Regular tooltip
 	this.solidify = function() {
 		_this.m.tip.empty();
+		
 		// Duration chooser
-		var e_time = $('<div>').addClass('time').appendTo(_this.m.tip);
-		e_time.html(Math.round(_this.ends / 60 / 15 ) / 4, 2)
+		_this.elm_ends = $('<div>').addClass('time').appendTo(_this.m.tip);
+		_this.elm_ends.value = function(v) {_this.elm_ends.html((v / 60 / 60).toFixed(2))};
+		_this.elm_ends.value(_this.ends);
+		
 		if(_this.draggable) {
-			e_time[0].onclick = function(e) {
-				i = parseFloat(e_time.text());
+			_this.elm_ends[0].onclick = function(e) {
+				i = parseFloat(_this.elm_ends.text());
 				i = isNaN(i) ? 1 : Math.min(12, i + 0.25);
-				e_time.text(i);
+				_this.elm_ends.text(i);
 				$.ajax(server + '/' + _this.id, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'ends': i})}});
 			};
 		}

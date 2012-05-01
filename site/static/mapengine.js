@@ -24,7 +24,7 @@ function MapEngine(obj, manager) {
 	this.reloadMarkers = manager.reload;
 	this.mapEvents = manager.events;
 	this.loadMarkersTimeout = new TTimeout(function(){_this.reloadMarkers(_this);}, 250);
-	//this.mapEventsTimeout = setTimeout(_this.getEvents, 2000);
+	this.mapEventsTimeout = setTimeout(_this.getEvents, 2000);
 	
 	////////////////////
 	// Initialization //
@@ -121,7 +121,7 @@ function MapEngine(obj, manager) {
 						optimized: false, // So markers scale.
 						draggable: mkr.draggable,
 						icon: new google.maps.MarkerImage(
-							'resources/' + mkr.image + '.png',
+							mkr.image,
 							new google.maps.Size(),
 							null,
 							new google.maps.Point()
