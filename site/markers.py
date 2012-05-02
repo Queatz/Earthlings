@@ -42,6 +42,9 @@ class Stash:
 		# Type handlers
 		self.handle = {}
 	
+	def instance(self):
+		return cherrypy.session.id
+	
 	def addHandler(self, name, handle):
 		self.handle[name] = handle
 	
@@ -49,7 +52,7 @@ class Stash:
 		self.mk.update({'_id': i}, {'$set': d})
 	
 	def insertEvent(self, i, t):
-		self.ev.update({'id': i, 'type': t}, {'$set': {'time': time.time()}}, True)
+		self.ev.update({'id': i, 'type': t}, {'$set': {'time': time.time(), 'session': self.instance()}}, True)
 	
 	def markersWithin(self, c):
 		return self.mk.find(
@@ -117,7 +120,8 @@ class Stash:
 				if cherrypy.session['showing']:
 					for x in self.ev.find({
 						'time': {'$gt': cherrypy.session['refresh']},
-						'$or': [{'id': x} for x in cherrypy.session['showing']]
+						'$or': [{'id': x} for x in cherrypy.session['showing']],
+						'$not': {'session': self.instance()}
 					}):
 						m = self.mk.find_one({'_id': x['id']})
 						if not m:
