@@ -160,7 +160,7 @@ function Event(options) {
 		if(_this.draggable) {
 			_this.elm_ends[0].onclick = function(e) {
 				var now = new Date();
-				_this.ends.setTime(Math.min(_this.ends.getTime() + 15 * 60 * 1000, now.getTime() + 12 * 60 * 60 * 1000));
+				_this.ends.setTime(Math.min(_this.ends.getTime() + 15 * 60 * 1000, now.getTime() + 11.999 * 60 * 60 * 1000));
 				_this.updateTime();
 				$.ajax(server + '/' + _this.id, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'ends': _this.sendEnds()})}});
 			};
