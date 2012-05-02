@@ -1,6 +1,9 @@
 (function($) {
 	$.fn.cime = function(a, t) {
 		return this.each(function() {
+			if(a > 0.97)
+				a = 1;
+			
 			ctx = this.getContext('2d');
 			
 			var w = ctx.canvas.width;
@@ -17,10 +20,10 @@
 			
 			ctx.beginPath();
 			
-			if(a < 0.99)
+			if(a < 0.999)
 				ctx.moveTo(x, y);
 			ctx.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * a, false);
-			if(a < 0.99)
+			if(a < 0.999)
 				ctx.lineTo(x, y);
 			grd = ctx.createRadialGradient(x, 0, 0, x, y, r);
 			grd.addColorStop(0, 'lime');

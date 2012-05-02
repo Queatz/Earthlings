@@ -21,6 +21,18 @@ class Handler(Handler):
 			'ends': t
 		}
 	
+	def readEvent(self, m, e):
+		if e['type'] == 'ends':
+			d = m['ends'] - time.time()
+			if d <= 0:
+				d = None
+		elif e['type'] == 'latlng':
+			d = m['loc']
+		else:
+			return
+		
+		return (str(m['_id']), e['type'], d)
+	
 	def act(self, m, a):
 		# Edit marker
 		if 'edit' in a:
@@ -36,9 +48,9 @@ class Handler(Handler):
 						a['title'] = a['title'][:256]
 					
 					self.stash.update(m['_id'], {'title': a['title']})
-					self.stash.insertEvent('update', m['_id'], 'title')
+					self.stash.insertEvent(m['_id'], 'title')
 				
 				# Set end time (in hours from now; min 1, max 12)
 				if 'ends' in a:
 					self.stash.update(m['_id'], {'ends': time.time() + min(12, max(.25, a['ends'])) * 60 * 60})
-					self.stash.insertEvent('update', m['_id'], 'ends')
+					self.stash.insertEvent(m['_id'], 'ends')

@@ -8,6 +8,22 @@ class Handler:
 	def json(self): pass
 	def act(self): pass
 
+class MapLive(live.Live):
+	def __init__(self, stash):
+		live.Live.__init__(self)
+		self.stash = stash
+	
+	def full(self, i):
+		d = self.stash((i,))
+		self.add('', 'add', [
+			d['id'],
+			d['type'],
+			[
+				['mine', d['mine']],
+				['latlng', d['latlng']],
+			] + [[y, d['data'][y]] for y in d['data']]
+		])
+
 class Stash:
 	def __init__(self):
 		# Connect to database
@@ -16,7 +32,6 @@ class Stash:
 		# Set up database
 		if 'earthlings' not in c.database_names():
 			c.earthlings.markers.create_index([('loc', mongo.GEO2D)])
-			c.earthlings.events.create_index([('loc', mongo.GEO2D)])
 			c.earthlings.events.create_index([('id', mongo.ASCENDING), ('type', mongo.ASCENDING)], unique = True)
 		
 		# Database links
@@ -72,9 +87,6 @@ class Stash:
 				# Insert marker and get it's ID
 				i = self.mk.insert(m)
 				
-				# Event
-				self.insertEvent('add', i)
-				
 				# Return the marker's ID as a string
 				return str(i)
 			
@@ -85,27 +97,48 @@ class Stash:
 				c = [[c[0], c[1]], [c[2], c[3]]]
 				
 				# Return markers within rect bounds
-				r = live.Live()
+				r = MapLive(self)
 				
 				for x in self.markersWithin(c):
-					d = self((x['_id'],))
-					r.add('', 'add', [
-						d['id'],
-						d['type'],
-						[
-							['mine', d['mine']],
-							['latlng', d['latlng']],
-						] + [[y, d['data'][y]] for y in d['data']]
-					])
+					r.full(x['_id'])
 				
 				# For events
 				cherrypy.session['showing'] = [x[0] for x in r]
 				cherrypy.session['rect'] = c
-				cherrypy.session['full refresh'] = time.time()
+				cherrypy.session['refresh'] = time.time()
 				
 				return r
 			elif 'events' in a:
-				cherrypy.session['full refresh'] = time.time()
+				if not cherrypy.session.get('rect', None):
+					return None
+				
+				r = MapLive(self)
+				
+				if cherrypy.session['showing']:
+					for x in self.ev.find({
+						'time': {'$gt': cherrypy.session['refresh']},
+						'$or': [{'id': x} for x in cherrypy.session['showing']]
+					}):
+						m = self.mk.find_one({'_id': x['id']})
+						if not m:
+							continue
+					
+						e = self.handle[m['type']].readEvent(m, x)
+					
+						if not e:
+							continue
+					
+						r.add(*e)
+				
+				# For new and moved events
+				for x in self.markersWithin(cherrypy.session['rect']):
+					if x['_id'] not in cherrypy.session['showing']:
+						cherrypy.session['showing'].append(x['_id'])
+						r.full(x['_id'])
+				
+				cherrypy.session['refresh'] = time.time()
+				
+				return r
 		
 		# Marker actions
 		else:
@@ -145,7 +178,7 @@ class Stash:
 					loc = [float(x) for x in a['latlng'].split(',')]
 			
 					# Event
-					self.insertEvent('move', m['_id'])
+					self.insertEvent(m['_id'], 'latlng')
 			
 					# Update loc
 					self.mk.update({'_id': i}, {'$set': {'loc': loc}})

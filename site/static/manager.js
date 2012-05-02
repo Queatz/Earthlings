@@ -75,7 +75,7 @@ function Manager(mapdiv) {
 				'events': true
 			},
 			success: function(x){
-				console.log(x);
+				_this.process(x);
 			}
 		});
 	};
