@@ -81,6 +81,11 @@ function MapEngine(obj, manager) {
 	// Manipulation //
 	//////////////////
 	
+	this.zoom = function(z) {
+		var m = _this.obj.gmap3('get');
+		m.setZoom(m.getZoom() + z);
+	};
+	
 	// Add a marker on the map
 	// Options:
 	// functional: bool // should match whether or not you can edit it (it's yours)

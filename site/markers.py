@@ -17,7 +17,7 @@ class Stash:
 		if 'earthlings' not in c.database_names():
 			c.earthlings.markers.create_index([('loc', mongo.GEO2D)])
 			c.earthlings.events.create_index([('loc', mongo.GEO2D)])
-			c.earthlings.events.create_index([('type', mongo.ASCENDING), ('id', mongo.ASCENDING)], unique = True)
+			c.earthlings.events.create_index([('id', mongo.ASCENDING), ('type', mongo.ASCENDING)], unique = True)
 		
 		# Database links
 		self.db = c['earthlings']

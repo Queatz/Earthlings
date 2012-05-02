@@ -25,6 +25,17 @@ $(document).ready(function() {
 	
 	// Add tipsy tooltips
 	$('[title]').tipsy({fade: true, gravity: 's', delayIn: 400, offset: 3});
+	
+	$(document).keydown(function(e){
+		switch(e.keyCode) {
+			case 33:
+				manager.map.zoom(1);
+				break;
+			case 34:
+				manager.map.zoom(-1);
+				break;
+		}
+	});
 });
 
 ///////////////////////////////////////////////////////
