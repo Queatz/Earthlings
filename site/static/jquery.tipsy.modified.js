@@ -66,7 +66,7 @@
                 }
                 
                 if (this.options.fade) {
-                    $tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity});
+                    $tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity}, this.options.fadeTime);
                 } else {
                     $tip.css({visibility: 'visible', opacity: this.options.opacity});
                 }
@@ -75,7 +75,7 @@
         
         hide: function() {
             if (this.options.fade) {
-                this.tip().stop().fadeOut(function() { $(this).remove(); });
+                this.tip().stop().fadeOut(this.options.fadeTime, function() { $(this).remove(); });
             } else {
                 this.tip().remove();
             }
@@ -201,6 +201,7 @@
         delayIn: 0,
         delayOut: 0,
         fade: false,
+        fadeTime: null,
         fallback: '',
         gravity: 'n',
         html: false,

@@ -71,7 +71,7 @@ tooltipOverlay.prototype.showTip = function(m) {
 		
 		m.mdiv.tipsy({
 			opacity: 0.95,
-			delayOut: 500,
+			fadeTime: 'fast',
 			trigger: 'manual',
 			gravity: 's',
 			fade: true,
