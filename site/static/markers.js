@@ -45,8 +45,13 @@ function Event(options) {
 			_this.setPositionFactor = 0;
 		}
 
-		if(_this.setPositionTimeout)
+		if(_this.setPositionTimeout) {
 			clearTimeout(_this.setPositionTimeout);
+			_this.setPositionTimeout = null;
+		}
+
+		if(manager.map.activeDrag == _this.m)
+			return;
 
 		_this.setPositionFactor += 0.02;
 
@@ -74,7 +79,7 @@ function Event(options) {
 			case 'latlng':
 				_this.latlng = new google.maps.LatLng(a[1][0], a[1][1]);
 				
-				if(_this.m)
+				if(_this.m && manager.map.activeDrag != _this.m)
 					_this.setPosition(_this.latlng);
 				
 				break;
@@ -82,7 +87,7 @@ function Event(options) {
 				_this.image = 'resources/' + (a[1] ? 'event-mine' : 'event') + '.png';
 				_this.draggable = a[1];
 				
-				if(_this.m && manager.map.activeDrag != _this.m) {
+				if(_this.m) {
 					var i = _this.m.getIcon();
 					i.url = _this.image;
 					_this.m.setIcon(i);
