@@ -1,5 +1,7 @@
 // Default map marker options
 function Marker() {
+	var _this = this;
+
 	this.image = '';
 	this.title = '';
 	this.draggable = true;
@@ -32,6 +34,40 @@ function Event(options) {
 		this.image = 'resources/event-mine.png';
 	}
 	
+	// Slide markers when moving
+	this.setPositionTimeout = null;
+	this.setPositionFrom = null;
+	this.setPositionFactor = null;
+
+	this.setPosition = function(dest) {
+		if(dest) {
+			_this.setPositionFrom = _this.m.getPosition();
+			_this.setPositionFactor = 0;
+		}
+
+		if(_this.setPositionTimeout)
+			clearTimeout(_this.setPositionTimeout);
+
+		_this.setPositionFactor += 0.02;
+
+		var a;
+		if(_this.setPositionFactor < .5)
+			a = Math.pow(_this.setPositionFactor * 2, 2) / 2;
+		else
+			a = 0.5 + (0.5 - Math.pow(1 - (_this.setPositionFactor - 0.5) * 2, 2) / 2);
+
+		_this.m.setPosition(new google.maps.LatLng(
+			_this.setPositionFrom.lat() * (1 - a) + a * _this.latlng.lat(),
+			_this.setPositionFrom.lng() * (1 - a) + a * _this.latlng.lng()
+			));
+
+
+		if(_this.setPositionFactor < 1)
+			_this.setPositionTimeout = setTimeout(_this.setPosition, 5);
+		else
+			_this.setPositionTimeout = null;
+	}
+
 	// Handle updates from server
 	this.handle = function(a) {
 		switch(a[0]) {
@@ -39,14 +75,14 @@ function Event(options) {
 				_this.latlng = new google.maps.LatLng(a[1][0], a[1][1]);
 				
 				if(_this.m)
-					_this.m.setPosition(_this.latlng);
+					_this.setPosition(_this.latlng);
 				
 				break;
 			case 'mine':
 				_this.image = 'resources/' + (a[1] ? 'event-mine' : 'event') + '.png';
 				_this.draggable = a[1];
 				
-				if(_this.m) {
+				if(_this.m && manager.map.activeDrag != _this.m) {
 					var i = _this.m.getIcon();
 					i.url = _this.image;
 					_this.m.setIcon(i);

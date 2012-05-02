@@ -24,7 +24,7 @@
 [
 	['', [
 		['add', ['ig39gi93i9i5900403344', 'event', [
-			['mine', true],
+			['mine', True],
 			['latlng', [9.43432, 43.53941]],
 			['title', 'Probably boating.'],
 			['ends', 3]
