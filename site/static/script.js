@@ -1,5 +1,11 @@
 var manager;
 
+// http://stackoverflow.com/a/2117523/1296909
+var server = '/a/' + 'xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+});;
+
 $(document).ready(function() {
 	var e;
 	// Create the map div

@@ -43,7 +43,7 @@ class Stash:
 		self.handle = {}
 	
 	def instance(self):
-		return cherrypy.session.id
+		return cherrypy.session.id + '-' + cherrypy.session.inst
 	
 	def addHandler(self, name, handle):
 		self.handle[name] = handle
@@ -52,7 +52,7 @@ class Stash:
 		self.mk.update({'_id': i}, {'$set': d})
 	
 	def insertEvent(self, i, t):
-		self.ev.update({'id': i, 'type': t}, {'$set': {'time': time.time(), 'session': self.instance()}}, True)
+		self.ev.update({'id': i, 'type': t}, {'$set': {'time': time.time(), 'inst': self.instance()}}, True)
 	
 	def markersWithin(self, c):
 		return self.mk.find(
@@ -106,22 +106,23 @@ class Stash:
 					r.full(x['_id'])
 				
 				# For events
-				cherrypy.session['showing'] = [x[0] for x in r]
-				cherrypy.session['rect'] = c
-				cherrypy.session['refresh'] = time.time()
+				cherrypy.session[cherrypy.session.inst]['showing'] = [x[0] for x in r]
+				cherrypy.session[cherrypy.session.inst]['rect'] = c
+				cherrypy.session[cherrypy.session.inst]['refresh'] = time.time()
 				
 				return r
 			elif 'events' in a:
-				if not cherrypy.session.get('rect', None):
+				if 'rect' not in cherrypy.session[cherrypy.session.inst]:
 					return None
 				
 				r = MapLive(self)
 				
-				if cherrypy.session['showing']:
+				
+				if cherrypy.session[cherrypy.session.inst]['showing']:
 					for x in self.ev.find({
-						'time': {'$gt': cherrypy.session['refresh']},
-						'$or': [{'id': x} for x in cherrypy.session['showing']],
-						'$not': {'session': self.instance()}
+						'time': {'$gt': cherrypy.session[cherrypy.session.inst]['refresh']},
+						'$or': [{'id': x} for x in cherrypy.session[cherrypy.session.inst]['showing']],
+						'inst': {'$ne': self.instance()}
 					}):
 						m = self.mk.find_one({'_id': x['id']})
 						if not m:
@@ -135,12 +136,12 @@ class Stash:
 						r.add(*e)
 				
 				# For new and moved events
-				for x in self.markersWithin(cherrypy.session['rect']):
-					if x['_id'] not in cherrypy.session['showing']:
-						cherrypy.session['showing'].append(x['_id'])
+				for x in self.markersWithin(cherrypy.session[cherrypy.session.inst]['rect']):
+					if x['_id'] not in cherrypy.session[cherrypy.session.inst]['showing']:
+						cherrypy.session[cherrypy.session.inst]['showing'].append(x['_id'])
 						r.full(x['_id'])
 				
-				cherrypy.session['refresh'] = time.time()
+				cherrypy.session[cherrypy.session.inst]['refresh'] = time.time()
 				
 				return r
 		

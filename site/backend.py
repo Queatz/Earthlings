@@ -38,8 +38,16 @@ class Earthlings:
 	
 	@cherrypy.expose
 	def a(self, *args, **kwargs):
-		# Otherwise the session is lost...
-		cherrypy.session['keep'] = cherrypy.session.get('keep', 0) + 1
+		# To support multiple instances in the same session
+		if len(args) < 1:
+			return
+		
+		cherrypy.session.inst = args[0]
+		
+		if cherrypy.session.inst not in cherrypy.session:
+			cherrypy.session[cherrypy.session.inst] = {}
+		
+		args = args[1:]
 		
 		# Return the stash's response
 		return json.dumps(self.stash(args, kwargs), separators = (',',':'))
