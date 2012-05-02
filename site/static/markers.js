@@ -66,7 +66,7 @@ function Event(options) {
 				
 				break;
 			default:
-				console.log(_this, 'Unknown handle: ', a);
+				break;
 		}
 		
 		// If we have enough information about the marker, then add it to the map.

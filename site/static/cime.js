@@ -1,7 +1,7 @@
 (function($) {
 	$.fn.cime = function(a, t) {
 		return this.each(function() {
-			if(a > 0.97)
+			if(a > 0.999)
 				a = 1;
 			
 			ctx = this.getContext('2d');

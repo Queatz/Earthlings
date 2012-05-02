@@ -21,8 +21,6 @@ function Manager(mapdiv) {
 				for(xx in x[2])
 					_this._paths[x[0]].handle(x[2][xx]);
 		}
-		else
-			console.log('Unknown handle:', a);
 	};
 	
 	this.process = function(x) {
