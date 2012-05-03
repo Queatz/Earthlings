@@ -1,49 +1,112 @@
-(function($) {
-	$.fn.cime = function(a, t) {
-		return this.each(function() {
-			if(a > 0.999)
-				a = 1;
-			
-			ctx = this.getContext('2d');
-			
-			var w = ctx.canvas.width;
-			var h = ctx.canvas.height;
-			
-			ctx.clearRect(0, 0, w, h);
-			
-			if(a <= 0)
-				return;
-			
-			var r = Math.min(w, h) / 2 - 3;
-			
-			var x = w / 2, y = h / 2;
-			
-			ctx.beginPath();
-			
-			if(a < 0.999)
+function CimeObject(e) {
+	var _this = this;
+
+	this.timeout = null;
+	this.old = 0;
+	this.at = 0;
+	this.target = 0;
+	this.value = 0;
+	this.element = e;
+	this.text = null;
+
+	this.draw = function() {
+		var a = _this.value;
+
+		if(a > 0.999)
+			a = 1;
+
+		ctx = _this.element.getContext('2d');
+		
+		var w = ctx.canvas.width;
+		var h = ctx.canvas.height;
+		
+		ctx.clearRect(0, 0, w, h);
+		
+		var r = Math.min(w, h) / 2 - 3;
+		
+		var x = w / 2, y = h / 2;
+		
+		ctx.beginPath();
+		
+		ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+		var grd = ctx.createRadialGradient(x, y, r / 1.25, x, y, r);
+		grd.addColorStop(0, '#444');
+		grd.addColorStop(1, '#666');
+		ctx.fillStyle = grd;
+		ctx.fill();
+		ctx.lineWidth = 3;
+		ctx.strokeStyle = '#222';
+		ctx.stroke();
+
+		ctx.beginPath();
+
+		if(a > 0) {
+			if(a < 1)
 				ctx.moveTo(x, y);
-			ctx.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * a, false);
-			if(a < 0.999)
+			ctx.arc(x, y, r - 2.75, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * a, false);
+			if(a < 1)
 				ctx.lineTo(x, y);
-			grd = ctx.createRadialGradient(x, 0, 0, x, y, r);
-			grd.addColorStop(0, 'lime');
-			grd.addColorStop(1, 'green');
+			grd = ctx.createRadialGradient(x, 0, r / 4, x, y, r);
+			grd.addColorStop(0, '#afa');
+			grd.addColorStop(.3, 'lime');
+			grd.addColorStop(1, '#0a0');
 			ctx.fillStyle = grd;
 			ctx.fill();
 			ctx.lineWidth = 3;
 			ctx.strokeStyle = 'darkgreen';
 			ctx.stroke();
-			
-			if(t > 0) {
-				ctx.fillStyle = 'white';
-				ctx.font = x + 'px Berkshire Swash';
-				ctx.textAlign = 'center';
-				ctx.textBaseline = 'middle';
-				ctx.fillText(t, x, y);
-				ctx.lineWidth = 2;
-				ctx.strokeStyle = 'black';
-				ctx.strokeText(t, x, y);
+		}
+		
+		if(_this.text) {
+			ctx.fillStyle = 'white';
+			ctx.font = x + 'px Berkshire Swash';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(_this.text, x, y);
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = 'black';
+			ctx.strokeText(_this.text, x, y);
+		}
+	};
+
+	this.update = function(v, instant) {
+		if(typeof v != 'undefined') {
+			if(typeof v == 'string') {
+				_this.text = v;
+				return;
 			}
+
+			_this.old = _this.value;
+			_this.target = v;
+			_this.at = 0;
+		}
+
+		_this.at += 0.02;
+
+		if(_this.at >= 1 || instant) {
+			_this.at = 0;
+			_this.old = _this.target;
+		}
+
+		var e = ease(_this.at);
+		_this.value = _this.old * (1 - e) + _this.target * e;
+
+		_this.draw();
+
+		if(_this.timeout || _this.value.toFixed(3) == _this.target.toFixed(3))
+			return;
+
+		_this.timeout = setTimeout(function() {_this.timeout = null; _this.update();}, 5);
+	};
+}
+
+(function($) {
+	$.fn.cime = function(v, instant) {
+		return this.each(function() {
+			if(typeof this._cime == 'undefined')
+				this._cime = new CimeObject(this);
+			
+			this._cime.update(v, instant);
 		});
 	}
 })(jQuery);

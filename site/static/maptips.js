@@ -21,7 +21,7 @@ tooltipOverlay.prototype.updateTip = function(m) {
 			var px = this.getProjection().fromLatLngToDivPixel(m.getPosition());
 			this.waiting[d].mdiv.css({
 				top: px.y - 8,
-				left: px.x - 100,
+				left: px.x - 250,
 			});
 		}
 	}
@@ -60,7 +60,7 @@ tooltipOverlay.prototype.showTip = function(m) {
 	
 		m.mdiv.css({
 			position: 'absolute',
-			width: 200,
+			width: 500,
 			height: 0,
 			zIndex: 1999,
 			cursor: 'default'
@@ -83,6 +83,7 @@ tooltipOverlay.prototype.showTip = function(m) {
 		// Make tooltips interactable
 		var sP = function(e){e.stopPropagation();}
 		m.mdiv.mousedown(sP);
+		m.mdiv.mouseup(sP);
 		m.mdiv.click(sP);
 		m.mdiv.dblclick(sP);
 	}
@@ -94,9 +95,9 @@ tooltipOverlay.prototype.showTip = function(m) {
 		m.mdiv[0].timeout = null;
 	}
 	else {
+		m.mdiv.tipsy('show');
 		if(m.tipShowCallback)
 			m.tipShowCallback(m);
-		m.mdiv.tipsy('show');
 	}
 }
 

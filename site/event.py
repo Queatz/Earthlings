@@ -18,7 +18,8 @@ class Handler(Handler):
 		
 		return {
 			'title': m['title'],
-			'ends': t
+			'ends': t,
+			'hours': m['hours']
 		}
 	
 	def readEvent(self, m, e):
@@ -28,6 +29,10 @@ class Handler(Handler):
 				d = None
 		elif e['type'] == 'latlng':
 			d = m['loc']
+		elif e['type'] == 'hours':
+			d = m['hours']
+		elif e['type'] == 'title':
+			d = m['title']
 		else:
 			return
 		
@@ -43,6 +48,10 @@ class Handler(Handler):
 			if cherrypy.session.id in m['sessions']:
 				# Set title (max 256 chars)
 				if 'title' in a:
+					# Cannot set title a second time
+					if 'title' in m:
+						return
+
 					# Clip title length
 					if len(a['title']) > 256:
 						a['title'] = a['title'][:256]
@@ -52,5 +61,22 @@ class Handler(Handler):
 				
 				# Set end time (in hours from now; min 1, max 12)
 				if 'ends' in a:
-					self.stash.update(m['_id'], {'ends': time.time() + min(12, max(.25, a['ends'])) * 60 * 60})
+					maxh = (m['hours'] if 'hours' in m else 12)
+					self.stash.update(m['_id'], {'ends': time.time() + min(maxh, max(0, a['ends'])) * 60 * 60})
 					self.stash.insertEvent(m['_id'], 'ends')
+
+				if 'hours' in a:
+					# Cannot set hours a second time
+					if 'hours' in m:
+						return
+
+					self.stash.update(m['_id'], {'hours': min(12, max(1, a['hours']))})
+					self.stash.insertEvent(m['_id'], 'hours')
+
+				# Move marker
+				if 'latlng' in a:
+					# Convert latlng string to loc array
+					loc = [float(x) for x in a['latlng'].split(',')]
+			
+					self.stash.update(m['_id'], {'loc': loc})
+					self.stash.insertEvent(m['_id'], 'latlng')

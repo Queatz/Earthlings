@@ -24,6 +24,7 @@ body {
 	bottom: 0;
 	padding: 0;
 	
+	background: linear-gradient(bottom, #765 0%, #cba 90%, #fff 95%, #cba 100%);
 	background: -webkit-linear-gradient(bottom, #765 0%, #cba 90%, #fff 95%, #cba 100%);
 	background: -moz-linear-gradient(bottom, #765 0%, #cba 90%, #fff 95%, #cba 100%);
 	box-shadow: 0 0 16px black;
@@ -49,18 +50,74 @@ div.menu {
 
 /* ----- */
 
-.time {
+.time, .time2 {
 	margin: auto;
-	width: 100px;
-	height: 100px;
 	display: inline-block;
 	-webkit-user-select: none;
 }
 
-.timedown {
-	-webkit-user-select: none;
+.time {
+	width: 100px;
+	height: 100px;
 }
 
+.time2 {
+	width: 150px;
+	height: 150px;
+	margin: 6px;
+}
+
+input {
+	margin: 6px;
+}
+
+input[type=text] {
+	font-size: 110%;
+	font-family: inherit;
+	padding: 3px;
+	display: inline-block;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border-radius: 6px;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	outline: none;
+	border: 2px solid #fa0;
+	background: linear-gradient(bottom, #fff, #ddd);
+	background: -webkit-linear-gradient(bottom, #fff, #ddd);
+	background: -moz-linear-gradient(bottom, #fff, #ddd);
+}
+
+input[type=button], input[type=submit] {
+	font-size: 110%;
+	font-family: inherit;
+	padding: 3px 9px;
+	display: inline-block;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	outline: none;
+	border: 2px solid #0af;
+	background: #eee;
+	background: linear-gradient(bottom, #ddd, #fff);
+	background: -webkit-linear-gradient(bottom, #ddd, #fff);
+	background: -moz-linear-gradient(bottom, #ddd, #fff);
+}
+
+input[type=button]:active, input[type=submit]:active {
+	border-color: #06a;
+	background: #ccc;
+	background: linear-gradient(bottom, #ddd, #aaa);
+	background: -webkit-linear-gradient(bottom, #ddd, #aaa);
+	background: -moz-linear-gradient(bottom, #ddd, #aaa);
+}
+
+input[type=button]:focus, input[type=submit]:focus {
+	border-color: #8df;
+}
 
 /* Boxes */
 

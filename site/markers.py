@@ -177,16 +177,4 @@ class Stash:
 			
 			# Performing an action...
 			else:
-				# Move marker
-				if 'latlng' in a:
-					# Convert latlng string to loc array
-					loc = [float(x) for x in a['latlng'].split(',')]
-			
-					# Event
-					self.insertEvent(m['_id'], 'latlng')
-			
-					# Update loc
-					self.mk.update({'_id': i}, {'$set': {'loc': loc}})
-				else:
-					# Type-specific actions
-					return self.handle[m['type']].act(m, a)
+				return self.handle[m['type']].act(m, a)

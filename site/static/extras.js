@@ -31,3 +31,12 @@ function TTimeout(fn, interval, scope, args) {
 		this.id = null;
 	};
 }
+
+// Typical easing
+
+function ease(a) {
+	if(a < .5)
+		return Math.pow(a * 2, 2) / 2;
+	else
+		return 0.5 + (0.5 - Math.pow(1 - (a - 0.5) * 2, 2) / 2);
+}

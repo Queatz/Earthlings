@@ -3,7 +3,7 @@ function Marker() {
 	var _this = this;
 
 	this.image = '';
-	this.title = '';
+	this.title = null;
 	this.draggable = true;
 	this.id = null;
 	
@@ -32,6 +32,7 @@ function Event(options) {
 		this.id = null;
 		this.draggable = true;
 		this.image = 'resources/event-mine.png';
+		this.hours = 1;
 	}
 	
 	// Slide markers when moving
@@ -55,11 +56,7 @@ function Event(options) {
 
 		_this.setPositionFactor += 0.02;
 
-		var a;
-		if(_this.setPositionFactor < .5)
-			a = Math.pow(_this.setPositionFactor * 2, 2) / 2;
-		else
-			a = 0.5 + (0.5 - Math.pow(1 - (_this.setPositionFactor - 0.5) * 2, 2) / 2);
+		var a = ease(_this.setPositionFactor);
 
 		_this.m.setPosition(new google.maps.LatLng(
 			_this.setPositionFrom.lat() * (1 - a) + a * _this.latlng.lat(),
@@ -106,13 +103,20 @@ function Event(options) {
 				_this.ends.setTime(_this.ends.getTime() + a[1] * 1000);
 				
 				break;
+			case 'hours':
+				_this.hours = a[1];
+				
+				if(_this.elm_ends)
+					_this.updateTime();
+
+				break;
 			default:
 				break;
 		}
 		
 		// If we have enough information about the marker, then add it to the map.
 		if(!_this.m) {
-			if(_this.ends && _this.title && _this.latlng && _this.image)
+			if(_this.hours && _this.ends && _this.title != null && _this.latlng && _this.image)
 				manager.map.addMarker(_this);
 		}
 	};
@@ -136,8 +140,7 @@ function Event(options) {
 			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'event'}, success: function(x){
 				_this.id = x;
 				manager.registerPath(x, _this);
-				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'title': n, 'ends': _this.sendEnds()})}});
-				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'latlng': m.getPosition().toUrlValue()}});
+				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'latlng': m.getPosition().toUrlValue(), 'title': n, 'hours': _this.hours, 'ends': _this.sendEnds()})}});
 			}});
 		}
 		
@@ -145,31 +148,31 @@ function Event(options) {
 		
 		if(!options) {
 			// Duration chooser
-			var e_time = $('<canvas>').attr('width', 100).attr('height', 100).addClass('time').appendTo(m.tip).cime(1, 1);
+			var e_time = $('<canvas>').attr('width', 150).attr('height', 150).addClass('time2').appendTo(m.tip).cime(1);
 			
+			m.tip.append('<br>');
+
 			_this.ends = new Date();
 			_this.ends.setTime(_this.ends.getTime() + 60 * 60 * 1000);
-			
+
+			e_time[0].onmousedown = function(e) {
+				_this.hours = Math.max(1, Math.min(12, _this.hours + (e.button == 0 ? 1 : -1)));
+				_this.ends.setTime((new Date).getTime() + _this.hours * 60 * 60 * 1000);
+
+				_this.updateTime(true);
+				e.stopPropagation();
+			};
+		
+			e_time[0].onmouseup = function(e) {
+				e.stopPropagation();
+			}
+
 			_this.elm_ends = e_time;
-			
-			e_time[0].onclick = function(e) {
-				_this.ends.setTime(_this.ends.getTime() + 15 * 60 * 1000);
-				
-				_this.updateTime();
-			};
-			
-			// Subtract from duration
-			var e_timeDOWN = $('<div>').addClass('timedown').appendTo(m.tip);
-			e_timeDOWN.html('-');
-			e_timeDOWN[0].onclick = function(e) {
-				var now = new Date();
-				_this.ends.setTime(_this.ends.getTime() - 15 * 60 * 1000);
-				
-				_this.updateTime();
-			};
 			
 			// Title
 			var e_title = $('<input>').attr('type', 'text').attr('maxlength', '256').appendTo(m.tip);
+
+			m.tip.append('<br>');
 			
 			// Submit
 			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
@@ -180,7 +183,7 @@ function Event(options) {
 			e[0].onclick = (function(e){manager.map.mtips.hideTip(m, 0); manager.map.markers.splice(manager.map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
 	
 			m.tipLocked = true;
-			setTimeout(function() {m.mtip = manager.map.mtips.showTip(m); e_title.focus();}, 600);
+			setTimeout(function() {m.mtip = manager.map.mtips.showTip(m); e_title.focus(); _this.setTimeControls(); _this.updateTime();}, 800);
 		}
 		else {
 			_this.solidify();
@@ -191,6 +194,22 @@ function Event(options) {
 		return (_this.ends.getTime() - new Date().getTime()) / 1000 / 60 / 60;
 	};
 	
+	this.fill = function(g, a) {
+		if(g) {
+			if(!a)
+				_this.fillRate = 0.05;
+			else
+				_this.fillRate = Math.min(0.5, _this.fillRate + 0.005);
+
+			_this.ends.setTime(Math.min(_this.ends.getTime() + _this.fillRate * 60 * 1000, (new Date).getTime() + 11.999 * 60 * 60 * 1000));
+			_this.updateTime(true);
+
+			_this.fillTimeout = setTimeout(function() {_this.fill(true, true);}, 5);
+		}
+		else
+			clearTimeout(_this.fillTimeout);
+	};
+
 	// Regular tooltip
 	this.solidify = function() {
 		_this.m.tip.empty();
@@ -198,18 +217,11 @@ function Event(options) {
 		// Duration chooser
 		_this.elm_ends = $('<canvas>').attr('width', 100).attr('height', 100).addClass('time').appendTo(_this.m.tip);
 		
-		if(_this.draggable) {
-			_this.elm_ends[0].onclick = function(e) {
-				var now = new Date();
-				_this.ends.setTime(Math.min(_this.ends.getTime() + 15 * 60 * 1000, now.getTime() + 11.999 * 60 * 60 * 1000));
-				_this.updateTime();
-				$.ajax(server + '/' + _this.id, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'ends': _this.sendEnds()})}});
-			};
-		}
-		
 		$('<br>').appendTo(_this.m.tip);
 		
-		$(_this.m.tip).append(_this.title);
+		_this.elm_title = $('<span>').html(_this.title).appendTo(_this.m.tip);
+
+		_this.updateTime(true);
 		
 		_this.m.tipLocked = false;
 		
@@ -220,24 +232,40 @@ function Event(options) {
 		};
 		
 		_this.m.tipShowCallback = function(m) {
+			if(_this.draggable)
+				_this.setTimeControls();
+
 			if(_this.updateTimeCallback)
-				return
+				return;
 			
+			_this.updateTime(true);
 			_this.doUpdateTime();
 		};
 	}
 	
 	// Time
 	
+	this.setTimeControls = function() {
+		_this.elm_ends.mousedown(function(e) {
+			_this.fill(true);
+		});
+
+		_this.elm_ends.mouseup(function(e) {
+			_this.fill(false);
+			if(_this.id)
+				$.ajax(server + '/' + _this.id, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'ends': _this.sendEnds()})}});
+		});
+	}
+
 	this.doUpdateTime = function() {
 		_this.updateTime();
-		_this.updateTimeCallback = setTimeout(_this.doUpdateTime, 500);
+		_this.updateTimeCallback = setTimeout(_this.doUpdateTime, 2000);
 	};
 	
-	this.updateTime = function() {
-		var now = new Date();
-		var remain = (_this.ends.getTime() - now.getTime()) / 1000 / 60 / 60;
-		_this.elm_ends.cime(remain % 1, Math.ceil(remain));
+	this.updateTime = function(instant) {
+		var remain = (_this.ends.getTime() - (new Date).getTime()) / 1000 / 60 / 60;
+		_this.elm_ends.cime('' + _this.hours);
+		_this.elm_ends.cime(remain / _this.hours, instant);
 	};
 	
 	// Save changes to the location
@@ -250,7 +278,7 @@ function Event(options) {
 		_this.positionTimeout = setTimeout(function(){
 			$.ajax(server + '/' + _this.id, {
 				type: 'POST', dataType: 'json',
-				data: {'latlng': m.getPosition().toUrlValue()}
+				data: {'edit': JSON.stringify({'latlng': m.getPosition().toUrlValue()})}
 			});
 		}, 100);
 	};
