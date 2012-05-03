@@ -29,13 +29,13 @@ function CimeObject(e) {
 		ctx.beginPath();
 		
 		ctx.arc(x, y, r, 0, 2 * Math.PI, false);
-		var grd = ctx.createRadialGradient(x, y, r / 1.25, x, y, r);
-		grd.addColorStop(0, '#444');
-		grd.addColorStop(1, '#666');
+		var grd = ctx.createRadialGradient(x, y, 0, x, y, r);
+		grd.addColorStop(0, '#111');
+		grd.addColorStop(1, '#090909');
 		ctx.fillStyle = grd;
 		ctx.fill();
-		ctx.lineWidth = 3;
-		ctx.strokeStyle = '#222';
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = '#333';
 		ctx.stroke();
 
 		ctx.beginPath();
@@ -43,7 +43,7 @@ function CimeObject(e) {
 		if(a > 0) {
 			if(a < 1)
 				ctx.moveTo(x, y);
-			ctx.arc(x, y, r - 2.75, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * a, false);
+			ctx.arc(x, y, r - 1.75, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * a, false);
 			if(a < 1)
 				ctx.lineTo(x, y);
 			grd = ctx.createRadialGradient(x, 0, r / 4, x, y, r);
@@ -52,7 +52,7 @@ function CimeObject(e) {
 			grd.addColorStop(1, '#0a0');
 			ctx.fillStyle = grd;
 			ctx.fill();
-			ctx.lineWidth = 3;
+			ctx.lineWidth = 2;
 			ctx.strokeStyle = 'darkgreen';
 			ctx.stroke();
 		}
