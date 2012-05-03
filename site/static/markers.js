@@ -99,8 +99,7 @@ function Event(options) {
 				
 				break;
 			case 'ends':
-				_this.ends = new Date();
-				_this.ends.setTime(_this.ends.getTime() + a[1] * 1000);
+				_this.ends = time() + a[1];
 				
 				break;
 			case 'hours':
@@ -128,9 +127,8 @@ function Event(options) {
 		
 		_this.m.mtip = null;
 		
-		m.save = function(n, e) {
+		m.save = function(n) {
 			_this.title = n;
-			_this.ends = e;
 			_this.solidify();
 			manager.map.mtips.updateTip(_this.m);
 			_this.m.mtip = manager.map.mtips.showTip(_this.m);
@@ -140,7 +138,7 @@ function Event(options) {
 			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'event'}, success: function(x){
 				_this.id = x;
 				manager.registerPath(x, _this);
-				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'latlng': m.getPosition().toUrlValue(), 'title': n, 'hours': _this.hours, 'ends': _this.sendEnds()})}});
+				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'latlng': m.getPosition().toUrlValue(), 'title': n, 'hours': _this.hours, 'ends': _this.hours * 60 * 60})}});
 			}});
 		}
 		
@@ -152,13 +150,12 @@ function Event(options) {
 			
 			m.tip.append('<br>');
 
-			_this.ends = new Date();
-			_this.ends.setTime(_this.ends.getTime() + 60 * 60 * 1000);
+			_this.ends = time() + 60 * 60;
 
 			e_time[0].onmousedown = function(e) {
 				_this.hours = Math.max(1, Math.min(12, _this.hours + (e.button == 0 ? 1 : -1)));
-				_this.ends.setTime((new Date).getTime() + _this.hours * 60 * 60 * 1000);
-
+				_this.ends = time() + _this.hours * 60 * 60;
+				
 				_this.updateTime(true);
 			};
 
@@ -171,7 +168,7 @@ function Event(options) {
 			
 			// Submit
 			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Submit').appendTo(m.tip);
-			e_submit[0].onclick = (function(e){m.save(e_title.val(), _this.ends);});
+			e_submit[0].onclick = (function(e){m.save(e_title.val());});
 			
 			// Discard
 			var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
@@ -185,10 +182,6 @@ function Event(options) {
 		}
 	};
 	
-	this.sendEnds = function() {
-		return (_this.ends.getTime() - new Date().getTime()) / 1000 / 60 / 60;
-	};
-	
 	this.fill = function(g, a) {
 		if(g) {
 			if(!a)
@@ -196,7 +189,7 @@ function Event(options) {
 			else
 				_this.fillRate = Math.min(0.5, _this.fillRate + 0.005);
 
-			_this.ends.setTime(Math.min(_this.ends.getTime() + _this.fillRate * 60 * 1000, (new Date).getTime() + 11.999 * 60 * 60 * 1000));
+			_this.ends = Math.min(_this.ends + _this.fillRate * 60, time() + 11.999 * 60 * 60);
 			_this.updateTime(true);
 
 			_this.fillTimeout = setTimeout(function() {_this.fill(true, true);}, 5);
@@ -248,7 +241,7 @@ function Event(options) {
 		_this.elm_ends.mouseup(function(e) {
 			_this.fill(false);
 			if(_this.id)
-				$.ajax(server + '/' + _this.id, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'ends': _this.sendEnds()})}});
+				$.ajax(server + '/' + _this.id, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'ends': _this.ends - time()})}});
 		});
 	}
 
@@ -258,9 +251,8 @@ function Event(options) {
 	};
 	
 	this.updateTime = function(instant) {
-		var remain = (_this.ends.getTime() - (new Date).getTime()) / 1000 / 60 / 60;
 		_this.elm_ends.cime('' + _this.hours);
-		_this.elm_ends.cime(remain / _this.hours, instant);
+		_this.elm_ends.cime((_this.ends - time()) / 60 / 60 / _this.hours, instant);
 	};
 	
 	// Save changes to the location

@@ -61,8 +61,8 @@ class Handler(Handler):
 				
 				# Set end time (in hours from now; min 1, max 12)
 				if 'ends' in a:
-					maxh = (m['hours'] if 'hours' in m else 12)
-					self.stash.update(m['_id'], {'ends': time.time() + min(maxh, max(0, a['ends'])) * 60 * 60})
+					maxh = (m['hours'] if 'hours' in m else 12) * 60 * 60
+					self.stash.update(m['_id'], {'ends': time.time() + min(maxh, max(0, a['ends']))})
 					self.stash.insertEvent(m['_id'], 'ends')
 
 				if 'hours' in a:

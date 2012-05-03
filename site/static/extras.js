@@ -40,3 +40,9 @@ function ease(a) {
 	else
 		return 0.5 + (0.5 - Math.pow(1 - (a - 0.5) * 2, 2) / 2);
 }
+
+// Just the time
+
+function time() {
+	return (new Date).getTime() / 1000;
+}
