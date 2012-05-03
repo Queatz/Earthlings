@@ -11,7 +11,7 @@ function MapEngine(obj, manager) {
 	////////////
 	
 	this.getEvents = function() {
-		_this.mapEventsTimeout = setTimeout(_this.getEvents, 3000);
+		_this.mapEventsTimeout = setTimeout(_this.getEvents, 7000);
 		_this.mapEvents(_this);
 	};
 	
@@ -24,7 +24,7 @@ function MapEngine(obj, manager) {
 	this.reloadMarkers = manager.reload;
 	this.mapEvents = manager.events;
 	this.loadMarkersTimeout = new TTimeout(function(){_this.reloadMarkers(_this);}, 250);
-	this.mapEventsTimeout = setTimeout(_this.getEvents, 3000);
+	this.mapEventsTimeout = setTimeout(_this.getEvents, 7000);
 	
 	////////////////////
 	// Initialization //
