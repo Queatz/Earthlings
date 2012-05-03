@@ -31,24 +31,15 @@ function MapEngine(obj, manager) {
 	////////////////////
 	
 	this._init = function() {
-		var center = google.maps.LatLng(0, 0);
-		var zoom = 0;
-		
-		// Center map where it last was
-		var ll = $.cookie('earthlings_latlng');
-		if(ll) {
-			ll = ll.split('_');
-			center = new google.maps.LatLng(parseFloat(ll[0]), parseFloat(ll[1]));
-			zoom = parseInt(ll[2]);
-		}
-		
+		var l = _this.cookieCZ();
+
 		// Create the Google Map
 		_this.obj.gmap3({
 			options: {
-				center: center,
-				zoom: zoom,
+				center: l[0],
+				zoom: l[1],
 				disableDefaultUI: true,
-				mapTypeId: _this.getMapTypeFromZoom(zoom),
+				mapTypeId: _this.getMapTypeFromZoom(l[1]),
 				backgroundColor: '#222',
 			},
 			events: {
@@ -59,12 +50,42 @@ function MapEngine(obj, manager) {
 		});
 		
 		_this.mtips = new tooltipOverlay(_this.obj.gmap3('get'));
+
+		navigator.geolocation.getCurrentPosition(_this.geoLocate, _this.fromCookie);
 	}
 	
 	////////////
 	// Useful //
 	////////////
 	
+	this.cookieCZ = function() {
+		var center = google.maps.LatLng(0, 0);
+		var zoom = 0;
+		
+		// Center map where it last was
+		var ll = $.cookie('earthlings_latlng');
+		if(ll) {
+			ll = ll.split('_');
+			center = new google.maps.LatLng(parseFloat(ll[0]), parseFloat(ll[1]));
+			zoom = parseInt(ll[2]);
+		}
+
+		return [center, zoom];
+	}
+
+	this.fromCookie = function(error) {
+		var l = _this.cookieCZ();
+
+		_this.obj.gmap3('get').setCenter(l[0]);
+		_this.map.obj.gmap3('get').setZoom(l[1]);
+	}
+	
+
+	this.geoLocate = function(position) {
+		_this.obj.gmap3('get').setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+		_this.obj.gmap3('get').setZoom(17);
+	}
+
 	this.bounds = function() {
 		var b = _this.obj.gmap3('get').getBounds();
 	
