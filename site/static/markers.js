@@ -160,12 +160,7 @@ function Event(options) {
 				_this.ends.setTime((new Date).getTime() + _this.hours * 60 * 60 * 1000);
 
 				_this.updateTime(true);
-				e.stopPropagation();
 			};
-		
-			e_time[0].onmouseup = function(e) {
-				e.stopPropagation();
-			}
 
 			_this.elm_ends = e_time;
 			
