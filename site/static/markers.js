@@ -198,8 +198,8 @@ function Event(options) {
 			_this.fillTimeout = setTimeout(function() {_this.fillTimeout = null; _this.fill(true, true);}, 5);
 		}
 		else {
-			_this.fillTimeout = null;
 			clearTimeout(_this.fillTimeout);
+			_this.fillTimeout = null;
 		}
 	};
 
