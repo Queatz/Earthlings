@@ -51,8 +51,23 @@ function MapEngine(obj, manager) {
 		
 		_this.mtips = new tooltipOverlay(_this.obj.gmap3('get'));
 
+		_this.findMe();
+	}
+	
+	this.findMe = function() {
 		navigator.geolocation.getCurrentPosition(_this.geoLocate, _this.fromCookie);
 	}
+	
+	this.findLoc = function(l) {
+		_this.obj.gmap3({
+			action:'getAddress',
+			address: l,
+			callback: function(results){
+				if(!results) return;
+				_this.obj.gmap3('get').panTo(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+			}
+		});
+	};
 	
 	////////////
 	// Useful //
@@ -66,8 +81,8 @@ function MapEngine(obj, manager) {
 		var ll = $.cookie('earthlings_latlng');
 		if(ll) {
 			ll = ll.split('_');
-			center = new google.maps.LatLng(parseFloat(ll[0]), parseFloat(ll[1]));
-			zoom = parseInt(ll[2]);
+			center = new google.maps.LatLng(parseFloat(ll[0]) | 0, parseFloat(ll[1]) | 0);
+			zoom = parseInt(ll[2]) | 0;
 		}
 
 		return [center, zoom];
@@ -82,7 +97,7 @@ function MapEngine(obj, manager) {
 	
 
 	this.geoLocate = function(position) {
-		_this.obj.gmap3('get').setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+		_this.obj.gmap3('get').panTo(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
 		_this.obj.gmap3('get').setZoom(17);
 	}
 

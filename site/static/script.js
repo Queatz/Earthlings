@@ -21,6 +21,39 @@ $(document).ready(function() {
 	// Mechanics
 	manager = new Manager($('#map'));
 	
+	// Menu
+	
+	e = $('<div>').attr('id', 'navigate').addClass('navigate').appendTo($('body'));
+	var b = $('<input>').attr('type', 'submit').attr('value', 'Find Me').appendTo(e).click(function(e) {
+		$('#navigate').slideUp(120);
+		manager.map.findMe();
+	});
+	var b = $('<input>').attr('type', 'text').appendTo(e);
+	b.autocomplete({
+		delay: 1000,
+		source: function() {
+			manager.map.obj.gmap3({
+				action:'getAddress',
+				address: b.val(),
+				callback:function(results){
+					if(!results || results.length == 1) return;
+					else b.autocomplete('display', results, false);
+				}
+			});
+		},
+		cb: {
+			cast: function(item){
+				return item.formatted_address;
+			},
+			select: function(item) {
+				manager.map.obj.gmap3('get').panTo(new google.maps.LatLng(item.geometry.location.lat(), item.geometry.location.lng()));
+			}
+		}
+	}).keyup(function(e) {
+		if(e.keyCode == 13)
+			manager.map.findLoc(this.value);
+	});
+	
 	// Populate the menu
 	addMenuItem('navigate');
 	addMenuItem('handbook');
@@ -49,7 +82,6 @@ $(document).ready(function() {
 // Function to add a tool
 function addTool(name) {
 	var tool = $('<div>');
-	tool.attr('title', name.capitalize());
 	tool.addClass('tool');
 	tool.css('backgroundImage', "url('resources/" + name + ".png')");
 	$('#toolbar').append(tool);
@@ -57,20 +89,21 @@ function addTool(name) {
 }
 
 // Menu boxes
-boxmenu = function(e, n) {
+boxmenu = function(n) {
 	var g = $('#' + n);
-	if(g.css('display') != 'none')
-		g.fadeOut(150);
+	if(g.css('display') == 'none') {
+		g.slideDown(120);
+		g.find('input[type=text]').focus();
+	}
 	else
-		g.fadeIn(150);
+		g.slideUp(120);
 }
 
 // Function to add a menu item
 function addMenuItem(name) {
 	var tool = $('<div>');
-	tool.attr('title', name.capitalize());
 	tool.addClass('menu');
 	tool.css('backgroundImage', "url('resources/" + name + ".png')");
-	tool.click(boxmenu[name]);
 	$('#toolbar').append(tool);
+	tool.click(function() {boxmenu(name);});
 }
