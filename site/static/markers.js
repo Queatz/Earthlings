@@ -101,6 +101,9 @@ function Event(options) {
 			case 'ends':
 				_this.ends = time() + a[1];
 				
+				if(_this.elm_ends)
+					_this.updateTime();
+				
 				break;
 			case 'hours':
 				_this.hours = a[1];
@@ -189,13 +192,15 @@ function Event(options) {
 			else
 				_this.fillRate = Math.min(0.5, _this.fillRate + 0.005);
 
-			_this.ends = Math.min(_this.ends + _this.fillRate * 60, time() + 11.999 * 60 * 60);
+			_this.ends = Math.min(_this.ends + _this.fillRate * 60, time() + _this.hours * 60 * 60);
 			_this.updateTime(true);
 
-			_this.fillTimeout = setTimeout(function() {_this.fill(true, true);}, 5);
+			_this.fillTimeout = setTimeout(function() {_this.fillTimeout = null; _this.fill(true, true);}, 5);
 		}
-		else
+		else {
+			_this.fillTimeout = null;
 			clearTimeout(_this.fillTimeout);
+		}
 	};
 
 	// Regular tooltip
@@ -247,7 +252,7 @@ function Event(options) {
 
 	this.doUpdateTime = function() {
 		_this.updateTime();
-		_this.updateTimeCallback = setTimeout(_this.doUpdateTime, 2000);
+		_this.updateTimeCallback = setTimeout(_this.doUpdateTime, 500);
 	};
 	
 	this.updateTime = function(instant) {
