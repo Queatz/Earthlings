@@ -92,7 +92,7 @@ function MapEngine(obj, manager) {
 		var l = _this.cookieCZ();
 
 		_this.obj.gmap3('get').setCenter(l[0]);
-		_this.map.obj.gmap3('get').setZoom(l[1]);
+		_this.obj.gmap3('get').setZoom(l[1]);
 	}
 	
 

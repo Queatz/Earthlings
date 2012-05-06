@@ -56,7 +56,6 @@ $(document).ready(function() {
 	
 	// Populate the menu
 	addMenuItem('navigate');
-	addMenuItem('handbook');
 	
 	// Populate the toolbar
 	addTool('event');
