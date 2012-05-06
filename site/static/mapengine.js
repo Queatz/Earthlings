@@ -73,8 +73,9 @@ function MapEngine(obj, manager) {
 	// Useful //
 	////////////
 	
+	// Try to get the last location + zoom from a cookie
 	this.cookieCZ = function() {
-		var center = google.maps.LatLng(0, 0);
+		var center = new google.maps.LatLng(0, 0);
 		var zoom = 2;
 		
 		// Center map where it last was
@@ -88,6 +89,7 @@ function MapEngine(obj, manager) {
 		return [center, zoom];
 	}
 
+	// Set location + zoom from cookie
 	this.fromCookie = function(error) {
 		var l = _this.cookieCZ();
 
@@ -96,11 +98,13 @@ function MapEngine(obj, manager) {
 	}
 	
 
+	// Set location + zoom from geolocation
 	this.geoLocate = function(position) {
 		_this.obj.gmap3('get').panTo(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
 		_this.obj.gmap3('get').setZoom(17);
 	}
 
+	// Get my bounds
 	this.bounds = function() {
 		var b = _this.obj.gmap3('get').getBounds();
 	
@@ -117,6 +121,7 @@ function MapEngine(obj, manager) {
 	// Manipulation //
 	//////////////////
 	
+	// Zoom me
 	this.zoom = function(z) {
 		var m = _this.obj.gmap3('get');
 		m.setZoom(m.getZoom() + z);
@@ -176,14 +181,19 @@ function MapEngine(obj, manager) {
 		);
 	}
 	
-	// Remove a marker by it's index in the markers array
-	this.removeMarker = function(m) {
-		if(typeof m == 'number')
+	// Remove a marker or by it's index in the markers array
+	this.removeMarker = function(i) {
+		var m;
+		if(typeof i == 'number')
 			m = _this.markers[m];
+		else {
+			m = i;
+			i = _this.markers.indexOf(i);
+		}
 		
 		_this.mtips.hideTip(m);
 		m.setMap(null);
-		_this.markers.splice(_this.markers.indexOf(m), 1);
+		_this.markers.splice(i, 1);
 	}
 	
 	// Clear all markers
@@ -252,15 +262,15 @@ function MapEngine(obj, manager) {
 	
 	this.isFullLng = function() {
 		var map = _this.obj.gmap3('get');
-		var scale = Math.pow(2, map.getZoom()),
-		bounds = map.getBounds(),
-		ne = bounds.getNorthEast(),
-		sw = bounds.getSouthWest(),
-		lat = (ne.lat() <= 0 && sw.lat() >= 0) || (ne.lat() >= 0 && sw.lat() <= 0) ? 0 : Math.min(Math.abs(ne.lat()), Math.abs(sw.lat())), // closest latitude to equator
-		deg1 = new google.maps.LatLng(lat, 0),
-		deg2 = new google.maps.LatLng(lat, 1),
-		coord1 = map.getProjection().fromLatLngToPoint(deg1),
-		coord2 = map.getProjection().fromLatLngToPoint(deg2);
+		var scale = Math.pow(2, map.getZoom());
+		var bounds = map.getBounds();
+		var ne = bounds.getNorthEast();
+		var sw = bounds.getSouthWest();
+		var lat = (ne.lat() <= 0 && sw.lat() >= 0) || (ne.lat() >= 0 && sw.lat() <= 0) ? 0 : Math.min(Math.abs(ne.lat()), Math.abs(sw.lat())); // closest latitude to equator
+		var deg1 = new google.maps.LatLng(lat, 0);
+		var deg2 = new google.maps.LatLng(lat, 1);
+		var coord1 = map.getProjection().fromLatLngToPoint(deg1);
+		var coord2 = map.getProjection().fromLatLngToPoint(deg2);
 		// distance for one long degree in pixels for this zoom level
 		var pixelsPerLonDegree = (coord2.x - coord1.x) * scale;
 		// width of map's holder should be <= 360 (deg) * pixelsPerLonDegree if full map is displayed

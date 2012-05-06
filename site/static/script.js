@@ -7,7 +7,7 @@ var server = '/a/' + 'xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 });
 
 $(document).ready(function() {
-	var e;
+	var e, b;
 	// Create the map div
 	e = $('<div>');
 	e.attr('id', 'map');
@@ -24,11 +24,11 @@ $(document).ready(function() {
 	// Menu
 	
 	e = $('<div>').attr('id', 'navigate').addClass('navigate').appendTo($('body'));
-	var b = $('<input>').attr('type', 'submit').attr('value', 'Find Me').appendTo(e).click(function(e) {
+	b = $('<input>').attr('type', 'submit').attr('value', 'Find Me').appendTo(e).click(function(e) {
 		$('#navigate').slideUp(120);
 		manager.map.findMe();
 	});
-	var b = $('<input>').attr('type', 'text').appendTo(e);
+	b = $('<input>').attr('type', 'text').appendTo(e);
 	b.autocomplete({
 		delay: 1000,
 		source: function() {

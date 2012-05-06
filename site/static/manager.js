@@ -23,6 +23,7 @@ function Manager(mapdiv) {
 		}
 	};
 	
+	// Process event list from server
 	this.process = function(x) {
 		for(var z in x) {
 			var y = x[z];
@@ -36,8 +37,9 @@ function Manager(mapdiv) {
 		}
 	};
 	
+	// Reload all markers in view and clear those out of view
 	this.reload = function(m) {
-		b = _this.map.bounds();
+		var b = _this.map.bounds();
 		
 		$.ajax(server, {
 			type: 'POST',
@@ -63,15 +65,15 @@ function Manager(mapdiv) {
 		});
 	};
 	
+	// Remove a marker from the map
 	this.remove = function(m) {
 		if(m.real.id in _this._paths)
 			delete _this._paths[m.real.id];
 		_this.map.removeMarker(m);
 	};
 
+	// Fetch events from server
 	this.events = function(m) {
-		b = _this.map.bounds();
-	
 		$.ajax(server, {
 			type: 'POST',
 			dataType: 'json', 
@@ -84,6 +86,7 @@ function Manager(mapdiv) {
 		});
 	};
 	
+	// Register a path handler
 	this.registerPath = function(p, h) {
 		_this._paths[p] = h;
 	};

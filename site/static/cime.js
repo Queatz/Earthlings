@@ -31,7 +31,7 @@ function CimeObject(e) {
 		if(a > 0.999)
 			a = 1;
 
-		ctx = _this.element.getContext('2d');
+		var ctx = _this.element.getContext('2d');
 		
 		var w = ctx.canvas.width;
 		var h = ctx.canvas.height;
@@ -56,7 +56,7 @@ function CimeObject(e) {
 
 		ctx.beginPath();
 
-		color = new Color(255 * (1 - a), 255, 0);
+		var color = new Color(255 * (1 - a), 255, 0);
 
 		if(a > 0) {
 			if(a < 1)
