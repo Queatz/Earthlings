@@ -1,6 +1,22 @@
+function Color(r, g, b) {
+	var _this = this;
+	
+	_this.r = r;
+	_this.g = g;
+	_this.b = b;
+	
+	this.add = function(a) {
+		return new Color(Math.max(0, Math.min(255, _this.r + a)), Math.max(0, Math.min(255, _this.g + a)), Math.max(0, Math.min(255, _this.b + a)));
+	};
+	
+	this.get = function() {
+		return 'rgb(' + parseInt(_this.r) + ', ' + parseInt(_this.g) + ', ' + parseInt(_this.b) + ')';
+	};
+}
+	
 function CimeObject(e) {
 	var _this = this;
-
+	
 	this.timeout = null;
 	this.old = 0;
 	this.at = 0;
@@ -40,6 +56,8 @@ function CimeObject(e) {
 
 		ctx.beginPath();
 
+		color = new Color(255 * (1 - a), 255, 0);
+
 		if(a > 0) {
 			if(a < 1)
 				ctx.moveTo(x, y);
@@ -47,13 +65,13 @@ function CimeObject(e) {
 			if(a < 1)
 				ctx.lineTo(x, y);
 			grd = ctx.createRadialGradient(x, 0, r / 4, x, y, r);
-			grd.addColorStop(0, '#afa');
-			grd.addColorStop(.3, 'lime');
-			grd.addColorStop(1, '#0a0');
+			grd.addColorStop(0, color.add(128).get());
+			grd.addColorStop(0.3, color.get());
+			grd.addColorStop(1, color.add(-128).get());
 			ctx.fillStyle = grd;
 			ctx.fill();
 			ctx.lineWidth = 2;
-			ctx.strokeStyle = 'darkgreen';
+			ctx.strokeStyle = color.add(-192).get();
 			ctx.stroke();
 		}
 		
