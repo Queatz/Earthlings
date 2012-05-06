@@ -177,11 +177,13 @@ function MapEngine(obj, manager) {
 	}
 	
 	// Remove a marker by it's index in the markers array
-	this.removeMarker = function(i) {
-		var m = _this.markers[i];
-		_this.mtips.hideTip(m.mtip);
+	this.removeMarker = function(m) {
+		if(typeof m == 'number')
+			m = _this.markers[m];
+		
+		_this.mtips.hideTip(m);
 		m.setMap(null);
-		_this.markers.splice(i, 1);
+		_this.markers.splice(_this.markers.indexOf(m), 1);
 	}
 	
 	// Clear all markers
@@ -190,7 +192,7 @@ function MapEngine(obj, manager) {
 		while(i < _this.markers.length) {
 			m = _this.markers[i];
 			if(m.real.id) {
-				_this.mtips.hideTip(m.mtip);
+				_this.mtips.hideTip(m);
 				m.setMap(null);
 				_this.markers.splice(i, 1);
 			}

@@ -62,6 +62,12 @@ function Manager(mapdiv) {
 			}
 		});
 	};
+	
+	this.remove = function(m) {
+		if(m.real.id in _this._paths)
+			delete _this._paths[m.real.id];
+		_this.map.removeMarker(m);
+	};
 
 	this.events = function(m) {
 		b = _this.map.bounds();
