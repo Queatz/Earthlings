@@ -75,14 +75,14 @@ function MapEngine(obj, manager) {
 	
 	this.cookieCZ = function() {
 		var center = google.maps.LatLng(0, 0);
-		var zoom = 0;
+		var zoom = 2;
 		
 		// Center map where it last was
 		var ll = $.cookie('earthlings_latlng');
 		if(ll) {
 			ll = ll.split('_');
 			center = new google.maps.LatLng(parseFloat(ll[0]) | 0, parseFloat(ll[1]) | 0);
-			zoom = parseInt(ll[2]) | 0;
+			zoom = parseInt(ll[2]) | 2;
 		}
 
 		return [center, zoom];
