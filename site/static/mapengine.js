@@ -185,7 +185,7 @@ function MapEngine(obj, manager) {
 	this.removeMarker = function(i) {
 		var m;
 		if(typeof i == 'number')
-			m = _this.markers[m];
+			m = _this.markers[i];
 		else {
 			m = i;
 			i = _this.markers.indexOf(i);
