@@ -80,7 +80,7 @@ $(document).ready(function() {
 		tool.addClass('tool');
 		tool.css('backgroundImage', "url('resources/" + name + ".png')");
 		$('#toolbar').append(tool);
-		tool.click(function(){manager.map.addMarker(name == 'event' ? new Event() : null);});
+		tool.click(function(){manager.map.addMarker(name == 'event' ? new Event() : name == 'camp' ? new Camp() : null);});
 	}
 	
 	// Populate the toolbar

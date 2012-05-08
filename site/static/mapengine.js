@@ -134,6 +134,9 @@ function MapEngine(obj, manager) {
 	// image: image name
 	// tooltip: bool
 	this.addMarker = function(mkr) {
+		if(!mkr)
+			return;
+		
 		_this.obj.gmap3(
 			{	action: 'addMarker',
 				latLng: mkr.latlng || _this.obj.gmap3('get').getCenter(),

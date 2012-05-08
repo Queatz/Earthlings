@@ -5,8 +5,8 @@ import time
 import live
 
 class Handler:
-	def json(self): pass
-	def act(self): pass
+	def json(self, m): return {}
+	def act(self, m, a): pass
 
 class MapLive(live.Live):
 	def __init__(self, stash):
@@ -34,9 +34,13 @@ class Stash:
 			c.earthlings.markers.create_index([('loc', mongo.GEO2D)])
 			c.earthlings.events.create_index([('id', mongo.ASCENDING), ('type', mongo.ASCENDING)], unique = True)
 		
-		# Database links
+		# Database link
 		self.db = c['earthlings']
+		
+		# The Markers
 		self.mk = self.db['markers']
+		
+		# Real time events
 		self.ev = self.db['events']
 		
 		# Type handlers
@@ -75,7 +79,7 @@ class Stash:
 				t = a['add']
 			
 				# Quick validity check
-				if t not in ('event',):
+				if t not in ('event', 'camp'):
 					return
 			
 				# Create a new marker

@@ -3,7 +3,7 @@ from cherrypy.lib.static import staticfile
 import markers
 import json
 
-import event
+import event, camp
 
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -35,6 +35,7 @@ class Earthlings:
 	def __init__(self):
 		self.stash = markers.Stash()
 		self.stash.addHandler('event', event.Handler(self.stash))
+		self.stash.addHandler('camp', camp.Handler(self.stash))
 	
 	@cherrypy.expose
 	def a(self, *args, **kwargs):

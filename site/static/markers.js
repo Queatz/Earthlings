@@ -10,6 +10,9 @@ function Marker() {
 	// Function to call when clicked
 	this.click = null;
 	
+	// Handle updates from server
+	this.handle = function(a) {};
+	
 	// Function to call after the marker was added to the map
 	this.init = function(m){};
 	
@@ -294,4 +297,54 @@ function Event(options) {
 		}, 100);
 	};
 	
+}
+
+Camp.prototype = new Marker();
+
+function Camp(options) {
+	var _this = this;
+	
+	this.image = 'resources/camp.png';
+	
+	if(options) {
+		this.id = options.id;
+	}
+	else {
+		this.id = null;
+		this.mine = true;
+	}
+	
+	// General init
+	this.init = function(m) {
+		m.real = _this;
+		_this.m = m;
+		
+		$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'camp'}, success: function(x){
+				_this.id = x;
+				manager.registerPath(x, _this);
+				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'latlng': m.getPosition().toUrlValue()})}});
+			}});
+	}
+	
+	// Handle updates from server
+	this.handle = function(a) {
+		switch(a[0]) {
+			case 'latlng':
+				_this.latlng = new google.maps.LatLng(a[1][0], a[1][1]);
+				
+				break;
+			case 'mine':
+				_this.draggable = a[1];
+				
+				break;
+			default:
+				break;
+		}
+		
+		// If we have enough information about the marker, then add it to the map.
+		if(!_this.m) {
+			if(_this.latlng)
+				manager.map.addMarker(_this);
+		}
+	};
 }
