@@ -52,7 +52,7 @@ function Event(options) {
 			_this.setPositionTimeout = null;
 		}
 
-		if(manager.map.activeDrag == _this.m)
+		if(manager.map.activeDrag === _this.m)
 			return;
 
 		_this.setPositionFactor += 0.02;
@@ -127,7 +127,7 @@ function Event(options) {
 	};
 	
 	// General init
-	this.init = function(m){
+	this.init = function(m) {
 		m.real = _this;
 		_this.m = m;
 		
@@ -281,7 +281,7 @@ function Event(options) {
 	
 	// Save changes to the location
 	this.position_changed = function(m){
-		if(!_this.id || !(manager.map.activeDrag == m)) return;
+		if(!_this.id || !(manager.map.activeDrag === m)) return;
 		
 		if(_this.positionTimeout)
 			clearTimeout(_this.positionTimeout);

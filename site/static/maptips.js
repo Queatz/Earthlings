@@ -17,7 +17,7 @@ tooltipOverlay.prototype.onAdd = function() {
 tooltipOverlay.prototype.updateTip = function(m) {
 	if(!m || !m.mdiv) return;
 	for(var d in this.waiting) {
-		if(this.waiting[d] == m) {
+		if(this.waiting[d] === m) {
 			var px = this.getProjection().fromLatLngToDivPixel(m.getPosition());
 			this.waiting[d].mdiv.css({
 				top: px.y - 8,

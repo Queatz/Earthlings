@@ -59,7 +59,7 @@ $(document).ready(function() {
 	
 	// Populate the toolbar
 	addTool('event');
-	//addTool('camp');
+	addTool('camp');
 	
 	// Add tipsy tooltips
 	$('[title]').tipsy({fade: true, gravity: 's', delayIn: 400, offset: 3});

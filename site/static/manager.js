@@ -13,8 +13,18 @@ function Manager(mapdiv) {
 			var x = a[1];
 		
 			if(!(x[0] in _this._paths)) {
-				if(x[1] == 'event')
-				_this._paths[x[0]] = new Event({id: x[0]});
+				var n = null;
+				switch (x[1]) {
+					case 'event':
+						n = new Event({id: x[0]});
+						break;
+					case 'camp':
+						n = new Camp({id: x[0]});
+						break;
+				}
+				
+				if(n)
+					_this._paths[x[0]] = n;
 			}
 			
 			if(x[2])
