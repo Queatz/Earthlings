@@ -308,10 +308,11 @@ function Camp(options) {
 	
 	if(options) {
 		this.id = options.id;
+		this.draggable = false;
 	}
 	else {
 		this.id = null;
-		this.mine = true;
+		this.draggable = true;
 	}
 	
 	// General init
@@ -319,11 +320,13 @@ function Camp(options) {
 		m.real = _this;
 		_this.m = m;
 		
-		$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'camp'}, success: function(x){
-				_this.id = x;
-				manager.registerPath(x, _this);
-				$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'latlng': m.getPosition().toUrlValue()})}});
-			}});
+		if(!options) {
+			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'camp'}, success: function(x){
+					_this.id = x;
+					manager.registerPath(x, _this);
+					$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'latlng': m.getPosition().toUrlValue()})}});
+				}});
+		}
 	}
 	
 	// Handle updates from server
@@ -334,7 +337,6 @@ function Camp(options) {
 				
 				break;
 			case 'mine':
-				_this.draggable = a[1];
 				
 				break;
 			default:
