@@ -54,8 +54,34 @@ $(document).ready(function() {
 			manager.map.findLoc(this.value);
 	});
 	
+	var boxmenu = function(n) {
+		var g = $('#' + n);
+		if(g.css('display') == 'none') {
+			g.slideDown(120);
+			g.find('input[type=text]').focus();
+		}
+		else
+			g.slideUp(120);
+	}
+	
+	var addMenuItem = function(name) {
+		var tool = $('<div>');
+		tool.addClass('menu');
+		tool.css('backgroundImage', "url('resources/" + name + ".png')");
+		$('#toolbar').append(tool);
+		tool.click(function() {boxmenu(name);});
+	}
+	
 	// Populate the menu
 	addMenuItem('navigate');
+	
+	var addTool = function (name) {
+		var tool = $('<div>');
+		tool.addClass('tool');
+		tool.css('backgroundImage', "url('resources/" + name + ".png')");
+		$('#toolbar').append(tool);
+		tool.click(function(){manager.map.addMarker(name == 'event' ? new Event() : null);});
+	}
 	
 	// Populate the toolbar
 	addTool('event');
@@ -75,34 +101,3 @@ $(document).ready(function() {
 		}
 	});
 });
-
-///////////////////////////////////////////////////////
-
-// Function to add a tool
-function addTool(name) {
-	var tool = $('<div>');
-	tool.addClass('tool');
-	tool.css('backgroundImage', "url('resources/" + name + ".png')");
-	$('#toolbar').append(tool);
-	tool.click(function(){manager.map.addMarker(name == 'event' ? new Event() : null);});
-}
-
-// Menu boxes
-boxmenu = function(n) {
-	var g = $('#' + n);
-	if(g.css('display') == 'none') {
-		g.slideDown(120);
-		g.find('input[type=text]').focus();
-	}
-	else
-		g.slideUp(120);
-}
-
-// Function to add a menu item
-function addMenuItem(name) {
-	var tool = $('<div>');
-	tool.addClass('menu');
-	tool.css('backgroundImage', "url('resources/" + name + ".png')");
-	$('#toolbar').append(tool);
-	tool.click(function() {boxmenu(name);});
-}
