@@ -319,14 +319,42 @@ function Camp(options) {
 	this.init = function(m) {
 		m.real = _this;
 		_this.m = m;
+		_this.m.mtip = null;
 		
-		if(!options) {
+		m.save = function() {
+			_this.solidify();
+			manager.map.mtips.updateTip(_this.m);
+			_this.m.mtip = manager.map.mtips.showTip(_this.m);
+			manager.map.mtips.hideTip(_this.m);
+			
+			// Save to server
 			$.ajax(server, {type: 'POST', dataType: 'json', data: {'add': 'camp'}, success: function(x){
 					_this.id = x;
 					manager.registerPath(x, _this);
 					$.ajax(server + '/' + x, {type: 'POST', dataType: 'json', data: {'edit': JSON.stringify({'latlng': m.getPosition().toUrlValue()})}});
 				}});
 		}
+		
+		if(!options) {
+			m.tip = $('<span>');
+			
+			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Set Up Camp Here').appendTo(m.tip);
+			e_submit[0].onclick = m.save;
+			
+			$('<br>').appendTo(m.tip);
+			
+			// Discard
+			var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
+			e[0].onclick = (function(e){manager.map.mtips.hideTip(m, 0); manager.map.markers.splice(manager.map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
+			
+			m.tipLocked = true;
+			setTimeout(function() {m.mtip = manager.map.mtips.showTip(m);}, 800);
+		}
+	}
+	
+	// Regular tooltip
+	this.solidify = function() {
+		_this.m.tip.empty();
 	}
 	
 	// Handle updates from server
