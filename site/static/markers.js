@@ -341,7 +341,7 @@ function Camp(options) {
 			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Set Up Camp Here').appendTo(m.tip);
 			e_submit[0].onclick = m.save;
 			
-			$('<br>').appendTo(m.tip);
+			$('<span> </span>').appendTo(m.tip);
 			
 			// Discard
 			var e = $('<input>').attr('type', 'submit').attr('value', 'Discard').appendTo(m.tip);
