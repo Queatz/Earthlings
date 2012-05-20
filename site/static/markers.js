@@ -184,7 +184,7 @@ function Event(options) {
 			e[0].onclick = (function(e){manager.map.mtips.hideTip(m, 0); manager.map.markers.splice(manager.map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
 	
 			m.tipLocked = true;
-			setTimeout(function() {m.mtip = manager.map.mtips.showTip(m); e_title.focus(); _this.setTimeControls(); _this.updateTime();}, 800);
+			setTimeout(function() {manager.map.mtips.showTip(m); e_title.focus(); _this.setTimeControls(); _this.updateTime();}, 800);
 		}
 		else {
 			_this.solidify();
@@ -324,7 +324,7 @@ function Camp(options) {
 		m.save = function() {
 			_this.solidify();
 			manager.map.mtips.updateTip(_this.m);
-			_this.m.mtip = manager.map.mtips.showTip(_this.m);
+			manager.map.mtips.showTip(_this.m);
 			manager.map.mtips.hideTip(_this.m);
 			
 			// Save to server
@@ -338,6 +338,7 @@ function Camp(options) {
 		if(!options) {
 			m.tip = $('<span>');
 			
+			// Submit
 			var e_submit = $('<input>').attr('type', 'submit').attr('value', 'Set Up Camp Here').appendTo(m.tip);
 			e_submit[0].onclick = m.save;
 			
@@ -348,7 +349,7 @@ function Camp(options) {
 			e[0].onclick = (function(e){manager.map.mtips.hideTip(m, 0); manager.map.markers.splice(manager.map.markers.indexOf(m), 1); m.setMap(); e_submit.attr('disabled', true);});
 			
 			m.tipLocked = true;
-			setTimeout(function() {m.mtip = manager.map.mtips.showTip(m);}, 800);
+			setTimeout(function() {manager.map.mtips.showTip(m);}, 800);
 		}
 	}
 	

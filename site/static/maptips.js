@@ -81,7 +81,7 @@ tooltipOverlay.prototype.showTip = function(m) {
 		});
 		
 		// Make tooltips interactable
-		var sP = function(e){e.stopPropagation();}
+		var sP = function(e){e.stopPropagation();};
 		m.mdiv.mousedown(sP);
 		m.mdiv.mouseup(sP);
 		m.mdiv.click(sP);

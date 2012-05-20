@@ -25,6 +25,7 @@ function MapEngine(obj, manager) {
 	this.mapEvents = manager.events;
 	this.loadMarkersTimeout = new TTimeout(function(){_this.reloadMarkers(_this);}, 250);
 	this.mapEventsTimeout = setTimeout(_this.getEvents, 7000);
+	this.shouldBeFunctionalTips = true;
 	
 	////////////////////
 	// Initialization //
@@ -46,10 +47,12 @@ function MapEngine(obj, manager) {
 				zoom_changed: _this._zoomChanged,
 				center_changed: _this._centerChanged,
 				bounds_changed: _this._boundsChanged,
+				dragstart: _this.ds,
+				dragend: _this.de
 			}
 		});
 		
-		_this.mtips = new tooltipOverlay(_this.obj.gmap3('get'));
+		_this.mtips = new tooltipOverlay(_this.obj.gmap3('get'), _this.functionalTips);
 
 		_this.findMe();
 	}
@@ -72,6 +75,10 @@ function MapEngine(obj, manager) {
 	////////////
 	// Useful //
 	////////////
+	
+	this.functionalTips = function() {
+		return _this.shouldBeFunctionalTips && _this.activeDrag == null;
+	}
 	
 	// Try to get the last location + zoom from a cookie
 	this.cookieCZ = function() {
@@ -228,6 +235,14 @@ function MapEngine(obj, manager) {
 	////////////////////
 	// Event Handlers //
 	////////////////////
+	
+	this.ds = function(m) {
+		_this.shouldBeFunctionalTips = false;
+	}
+	
+	this.de = function(m) {
+		_this.shouldBeFunctionalTips = true;
+	}
 	
 	this.dragstart = function(m) {
 		_this.activeDrag = m;
